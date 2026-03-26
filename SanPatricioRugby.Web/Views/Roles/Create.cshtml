@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Crear Nuevo Rol";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 mt-4">
+        <div class="card card-premium">
+            <div class="card-body p-5">
+                <h4 class="card-title fw-bold text-dark mb-4 text-center">@ViewData["Title"]</h4>
+                
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                    
+                    <div class="mb-4">
+                        <label for="roleName" class="form-label text-muted fw-medium">Nombre de Rol (Permiso a Módulo)</label>
+                        <input type="text" class="form-control form-control-lg bg-light" id="roleName" name="roleName" required placeholder="Ej: Facturacion">
+                        <div class="form-text mt-2"><i class="fa-solid fa-circle-info me-1"></i>Asegúrate de que este nombre coincida con el CRUD correspondiente.</div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-primary bg-primary-color border-0 btn-lg shadow-sm">Guardar Rol</button>
+                        <a asp-action="Index" class="btn btn-light text-muted">Cancelar y Volver</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

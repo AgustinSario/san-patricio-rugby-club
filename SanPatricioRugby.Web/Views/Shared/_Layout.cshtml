@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - San Patricio Rugby</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SanPatricioRugby.Web.styles.css" asp-append-version="true" />
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light-site">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-4 sticky-top">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Dashboard" asp-action="Index">
+                    <img src="~/images/Escudo.jpg" height="45" style="object-fit: contain;" alt="San Patricio Rugby Logo" />
+                </a>
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 ms-3">
+                        <li class="nav-item">
+                            <a class="nav-link fw-medium text-dark hover-primary" asp-area="" asp-controller="Dashboard" asp-action="Index">
+                                <i class="fa-solid fa-chart-line me-1"></i> Dashboard
+                            </a>
+                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item dropdown px-2">
+                                <a class="nav-link dropdown-toggle fw-medium text-dark hover-primary" href="#" id="securityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-shield-halved me-1 text-danger"></i> Seguridad
+                                </a>
+                                <ul class="dropdown-menu shadow-sm border-0" aria-labelledby="securityDropdown">
+                                    <li><a class="dropdown-item py-2" asp-controller="Users" asp-action="Index"><i class="fa-solid fa-users me-2 text-primary"></i> Usuarios</a></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Roles" asp-action="Index"><i class="fa-solid fa-tags me-2 text-warning"></i> Roles (Pantallas)</a></li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                    
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <ul class="navbar-nav">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark fw-medium" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-user-circle fs-5 align-middle me-1 text-primary-color"></i> @User.Identity.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm" aria-labelledby="navbarDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">
+                                            <i class="fa-solid fa-key me-2 text-muted"></i> Mi Perfil (Contraseña)
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Cerrar sesión
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid px-4">
+        <main role="main" class="pb-5">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted bg-white mt-auto">
+        <div class="container-fluid px-4 py-3 text-center">
+            &copy; 2026 - San Patricio Rugby Club - Sistema de Gestión
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,143 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - San Patricio Rugby</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body {
+            background-color: var(--light-bg, #f5f7fa);
+            font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+        .login-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            overflow: hidden;
+            display: flex;
+            max-width: 900px;
+            width: 100%;
+            min-height: 500px;
+        }
+        .login-image {
+            background-color: #ffffff; 
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            padding: 40px;
+            text-align: center;
+            border-right: 1px solid #f0f0f0;
+        }
+        .login-image h2 {
+            font-weight: 700;
+            margin-top: 20px;
+            font-size: 2rem;
+            color: #cc0000;
+        }
+        .login-image p {
+            opacity: 0.8;
+            margin-top: 10px;
+            color: #666;
+        }
+        .login-image img {
+            max-width: 220px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        .login-form-container {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .login-form-container h3 {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-control {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid #e1e5eb;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #cc0000;
+            box-shadow: 0 0 0 0.2rem rgba(204, 0, 0, 0.25);
+        }
+        .btn-primary {
+            background-color: #cc0000;
+            border-color: #cc0000;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #a30000;
+            border-color: #a30000;
+            transform: translateY(-1px);
+        }
+        .text-danger {
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="login-image">
+            <img src="~/images/Escudo.jpg" alt="San Patricio Rugby Logo" style="max-width: 250px; height: auto; margin-bottom: 10px;" />
+            <p>Sistema Integral de Gestión y Administración de Socios.</p>
+        </div>
+        <div class="login-form-container">
+            <h3>Bienvenido</h3>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger" role="alert">
+                    Datos de acceso incorrectos. Por favor, verifique.
+                </div>
+            }
+
+            <form asp-controller="Account" asp-action="Login" method="post">
+                <div class="form-group mb-3">
+                    <label class="form-label text-muted" for="email">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="email" name="email" required placeholder="admin@sanpatricio.com" />
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label text-muted" for="password">Contraseña</label>
+                    <input type="password" class="form-control" id="password" name="password" required />
+                </div>
+                <div class="form-group form-check mb-4">
+                    <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe" value="true">
+                    <label class="form-check-label text-muted" for="rememberMe">Recordar mi sesión</label>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">Ingresar al Sistema</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
