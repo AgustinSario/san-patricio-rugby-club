@@ -12,8 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="bg-light-site">
+<body class="bg-light-site d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-4 sticky-top">
             <div class="container-fluid px-4">
@@ -26,18 +27,41 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1 ms-3">
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link fw-medium text-dark hover-primary" asp-area="" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="fa-solid fa-chart-line me-1"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-medium text-dark hover-primary px-3" asp-area="" asp-controller="Socios" asp-action="Index">
+                                    <i class="fa-solid fa-users me-1"></i> Socios
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-medium text-dark hover-primary px-3" asp-area="" asp-controller="Cuotas" asp-action="Index">
+                                    <i class="fa-solid fa-file-invoice-dollar me-1"></i> Cuotas
+                                </a>
+                            </li>
+                        }
+                        
                         <li class="nav-item">
-                            <a class="nav-link fw-medium text-dark hover-primary" asp-area="" asp-controller="Dashboard" asp-action="Index">
-                                <i class="fa-solid fa-chart-line me-1"></i> Dashboard
+                            <a class="nav-link fw-bold text-danger hover-primary px-3" asp-area="" asp-controller="Acceso" asp-action="Index">
+                                <i class="fa-solid fa-qrcode me-1"></i> CONTROL ACCESO
                             </a>
                         </li>
-                        @if (User.Identity.IsAuthenticated)
+                        
+                        @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item dropdown px-2">
                                 <a class="nav-link dropdown-toggle fw-medium text-dark hover-primary" href="#" id="securityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa-solid fa-shield-halved me-1 text-danger"></i> Seguridad
                                 </a>
                                 <ul class="dropdown-menu shadow-sm border-0" aria-labelledby="securityDropdown">
+                                    <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="Importar"><i class="fa-solid fa-file-import me-2 text-success"></i> Importar Mensual</a></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Acceso" asp-action="Precios"><i class="fa-solid fa-coins me-2 text-warning"></i> Configurar Precios</a></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item py-2" asp-controller="Users" asp-action="Index"><i class="fa-solid fa-users me-2 text-primary"></i> Usuarios</a></li>
                                     <li><a class="dropdown-item py-2" asp-controller="Roles" asp-action="Index"><i class="fa-solid fa-tags me-2 text-warning"></i> Roles (Pantallas)</a></li>
                                 </ul>
@@ -74,7 +98,7 @@
             </div>
         </nav>
     </header>
-    <div class="container-fluid px-4">
+    <div class="container-fluid px-4 flex-grow-1">
         <main role="main" class="pb-5">
             @RenderBody()
         </main>

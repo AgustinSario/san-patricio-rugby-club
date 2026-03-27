@@ -1,0 +1,97 @@
+﻿--- Sheet: LISTADO SOCIOS 2025 JAVIER  (2) ---
+Sample rows (first 10):
+Row 4: 291 |  | Rugby | AYUDANTE M15 |  |  | 3794721972 | 28/5/1989 00:00:00 | 29/5/1989 00:00:00 | Acevedo David | DEBITO | PAGADO | PAGDO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO |  |  |  | 
+Row 5: 159 | JUGADOR | Rugby | M17 | 2007 | MASCULINO |  | 5/12/2007 00:00:00 | 6/12/2007 00:00:00 | Acevedo Leandro | TRASFERENCIA | ULTIMO PAGO DICIEMBRE 24 |  |  | PAGADO | PAGADO | PAGADO | PADADO |  |  |  |  | 
+Row 6: 158 | JUGADOR | Rugby | M17 | 2007 | MASCULINO |  | 21/3/2007 00:00:00 | 22/3/2007 00:00:00 | Achitte Sotelo Alan | TRASFERENCIA | ULTIMO PAGO PARCIAL JULIO 24 | CANSELO 2024 |  |  |  |  |  |  |  |  |  | 
+Row 7: 220 | JUGADOR | Rugby | Plantel Superior |  | MASCULINO |  | 2/10/1995 00:00:00 | 3/10/1995 00:00:00 | Acinas Roberto | NO REGISTRADO |  |  |  |  |  |  |  |  |  |  |  | 
+Row 8: 79 | JUGADOR | Rugby | M14 | 2010 | MASCULINO |  | 2/3/2010 00:00:00 | 3/3/2010 00:00:00 | Acosta Adriano | DEBITO | PAGAGO | PAGDO | PAGADO |  | PAGADO | PAGADO | PAGADO | PAGADO |  |  |  | 
+Row 9: 221 | JUGADOR | Rugby | Plantel Superior |  | MASCULINO |  | 8/9/1992 00:00:00 | 9/9/1992 00:00:00 | Acosta Bilibio Guillermo | DEBITO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADFO | PAGADO | PAGADFO |  |  |  | 
+Row 10: 287 |  | Rugby | HEAD COACH M14 |  |  | 3794395217 | 18/11/1974 00:00:00 | 19/11/1974 00:00:00 | Acosta Eduardo | DEBITO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO |  |  |  |  |  | 
+Row 11: 222 | JUGADOR | Rugby | Plantel Superior |  | MASCULINO |  | 28/1/1992 00:00:00 | 29/1/1992 00:00:00 | Acosta Marcelo Jorge | DEBITO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO |  |  |  | 
+Row 12: 20 | JUGADOR | Rugby | Escuelita M7 |  | MASCULINO |  | 20/3/2017 00:00:00 | 21/3/2017 00:00:00 | Acosta Ortellado Vicente Fernando | DEBITO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO |  |  |  | 
+Row 13: 78 | JUGADOR | Rugby | M14 | 2010 | MASCULINO |  | 14/4/2010 00:00:00 | 15/4/2010 00:00:00 | Acoste Contte Nicanor | DEBITO | PAGADO | PAGADO | PAGADO |  | PAGADO | PAGADO | PAGADO | PAGADO |  |  |  | 
+
+--- Sheet: LISTADO SOCIOS 2025 JAVIER  ---
+Col 1 (A): cantida de socios
+Col 2 (B): Tipo de Socio
+Col 3 (C): Deporte
+Col 4 (D): Division
+Col 5 (E): Camada
+Col 6 (F): Sexo
+Col 7 (G): Celular
+Col 8 (H): Fecha de naciomiento
+Col 9 (I): Fecha de naciomiento
+Col 10 (J): Apellido y Nombre
+Col 11 (K): Medio de pago
+Col 12 (L): TARJETA DE CREDITOS
+Col 13 (M): TITULAR 
+Col 14 (N): DNI
+Col 15 (O): .ENERO 2025
+Col 16 (P): FEBERO.25
+Col 17 (Q): .MARZO 2025
+Col 18 (R): ABRIL
+Col 19 (S): MAYO
+Col 20 (T): JUNIO
+Col 21 (U): JULIO 
+Col 22 (V): AGOSTO
+Col 23 (W): SEPTIEMBRE
+Col 24 (X): OCTUBRE
+Col 25 (Y): NOVIEMBRE
+Col 26 (Z): DICIMEBRE 
+Col 27 (AA): ENERO 226
+Col 28 (AB): 1/2/2026 00:00:00
+Sample rows (first 10):
+Row 2:  | Activo | Presidente | C/D | 1967 | MASCULINO |  | 23/12/1956 00:00:00 | 16/10/1967 00:00:00 | GOMEZ VARA MANUEL EDUARDO | DEBITO | 4697710005305119 |  |  | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGDO | PAGADO | 50500 | 50500 | 77500 | 77500 | 77500 | 77500 |  |  |  |  |  |  |  | 
+Row 3:  |  |  |  |  |  |  | 3/10/1972 00:00:00 |  | TORRES ANDREA CAROLINA | DEBITO | 4697710005305119 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | 
+Row 4:  |  |  |  |  |  |  | 10/1/2001 00:00:00 |  | GOMEZ VARA GERONIMO | DEBITO | 4697710005305119 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | 
+Row 6: 4 | Activo | Vocal 1┬░ | C/D | 1978 | MASCULINO |  | 7/7/1978 00:00:00 | 8/7/1978 00:00:00 |  ALBARENQUE MAURICIO | DEBITO | 4937810090686744 |  |  | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | 25000 | 25000 | 35000 | 35000 | 35000 | 35000 |  |  |  |  |  |  |  | 
+Row 8: 2 | Activo | Secretario | C/D | 1983 | MASCULINO |  | 20/12/1983 00:00:00 | 21/12/1983 00:00:00 | RIVERO MARIANO | DEBITO | 4921692000965162 |  |  | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | 50500 | 50500 | 77500 | 77500 | 77500 | 77500 |  |  |  |  |  |  |  | 
+Row 9:  |  |  |  |  |  |  |  |  | RIVERO AGUSTIN | DEBITO | 4921692000965162 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | 
+Row 10:  |  |  |  |  |  |  |  |  | TIVERO TOMAS  | DEBITO | 4921692000965162 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | 
+Row 12:  |  |  |  |  |  |  | 28/8/1979 00:00:00 |  | LUJAN DANIEL Alberto | TRASFERENCIA | DEUDOR |  |  | PAGADO | PAGADO | PAGADO | PAGADO |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | 
+Row 13: 155 | JUGADOR | Rugby | M17 | 2007 | MASCULINO |  | 10/12/2008 00:00:00 | 11/12/2008 00:00:00 | LUJAN SOSA I├æAKI | TRASFERENCIA | DEUDOR |  |  | PAGADO | PAGADO | PAGADO | PAGADO |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | 
+Row 15: 157 | JUGADOR | Rugby | M17 | 2007 | MASCULINO |  | 9/3/2007 00:00:00 | 10/3/2007 00:00:00 | Vallejos Achinelli Felipe M17 | TRASFERENCIA | DEUDOR |  |  | PAGODO | PAGADO | PAGADO | PAGADO | PAGADO |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | 
+
+--- Sheet:  MONICA DIAZ DEBITOS  ---
+Col 1 (A): FECHA /NAC
+Col 2 (B): DNI
+Col 3 (C): NOMBRE Y APELLIDO
+Col 4 (D): NUMERO DE TARJETA
+Col 5 (E): ENERO 
+Col 6 (F): FEBRERO
+Col 7 (G): MARZO
+Col 8 (H): ABRIL
+Col 9 (I): MAYO
+Col 10 (J): JUNIOI
+Col 11 (K): JULIO
+Col 12 (L): AGOSTO
+Col 13 (M): SEPTIEMBRE
+Col 14 (N): OCTUBRE
+Sample rows (first 10):
+Row 2: 5/12/2007 00:00:00 |   | ACEVEDO DAVID | 4921692001416736 | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | 
+Row 3:  | 26235233 | ACOSTA ALBERTO HORACIO | 4517660162769375 | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | 
+Row 4:  | 26680382 | ACOSTA ANDRES | 5537716754826016 | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | 
+Row 6: 8/9/1992 00:00:00 | 24046835 | ACOSTA BILIBIO HUGO | 4509950243982869 | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | 
+Row 7: 28/9/2012 00:00:00 | 52736857 | ORTELLADO FELIPE  |  | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | 
+Row 8: 20/8/2017 00:00:00 | 56207658 | ACOSTA VICENTE |  | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | 
+Row 9: 10/1/1994 00:00:00 | 37885885 | ORTELLADO SOFIA MERCEDES |  | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | 
+Row 11:  | 26680382 | ACOSTA CARLOS SEBA | 4697000002598738 |  |  |  |  |  |  |  |  |  | 
+Row 12: 14/4/2024 00:00:00 |  50196635 | ACOSTA COTTE NICANOR |  | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | 
+Row 14: 18/11/1974 00:00:00 | 22438503 | ACOSTA EDUARDO | 4029189153253505 | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | PAGADO | 
+
+--- Sheet: MONICA DIAZ TRASFERENCIAS ---
+Col 1 (A): TRASFERENCIA 
+Col 2 (B): FECHA /NAC
+Col 3 (C):            DNI 
+Sample rows (first 10):
+Row 3: CENTURION SILVIA HERMINIA DIANA  | C | 22640707
+Row 4: CENTURION DELGADO AGSUTIN  | 11/11/2011 00:00:00 | 51537247
+Row 5: CENTURION DELGADO TIZIANO | 25/11/2014 00:00:00 | 54263343
+Row 7: YAYA  JOSE ALFREDO | 3/6/1979 00:00:00 | 27482175
+Row 8: YAYA  GABRIEL LAUTARO | 12/4/2008 00:00:00 | 48553707
+Row 9: YAYA JOSE BAUTISTA  | 12/4/2008 00:00:00 | 48553708
+Row 11: FARIA VICENTE ANASTACIO | 22/1/1968 00:00:00 | 20085145
+Row 12: FARIA FRANCISCO EZEQUIL  | 18/7/2012 00:00:00 | 52481964
+Row 13: FARIA FABRICIO EMANUEL  | 19/7/2014 00:00:00 | 54080061
+Row 14: FARIAS FACUNDO EVARISTO | 19/7/2014 00:00:00 | 54080062
+

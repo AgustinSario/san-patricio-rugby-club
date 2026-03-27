@@ -1,0 +1,64 @@
+@model IEnumerable<SanPatricioRugby.DAL.Models.ConfiguracionPrecio>
+
+@{
+    ViewData["Title"] = "Configuración de Precios";
+}
+
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h1 class="h3 fw-bold text-dark mb-1">Configuración de Precios</h1>
+        <p class="text-muted small">Ajusta los valores para el evento de hoy</p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="list-group list-group-flush">
+            @foreach (var precio in Model)
+            {
+                <div class="list-group-item p-4">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h6 class="fw-bold mb-0 text-dark">@precio.Concepto</h6>
+                            @if (!string.IsNullOrEmpty(precio.Descripcion))
+                            {
+                                <small class="text-muted">@precio.Descripcion</small>
+                            }
+                        </div>
+                        <div class="col-auto">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">$</span>
+                                <input type="number" step="100" class="form-control border-0 bg-light fw-bold text-primary-color" 
+                                       id="precio-@precio.Id" value="@precio.Valor.ToString("F0")" style="width: 100px;">
+                                <button class="btn btn-dark btn-sm px-3" onclick="guardarPrecio(@precio.Id)">
+                                    <i class="fa-solid fa-save"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <a asp-action="Index" class="btn btn-light rounded-pill px-5 text-muted">VOLVER AL ESCÁNER</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function guardarPrecio(id) {
+            const valor = document.getElementById(`precio-${id}`).value;
+            $.post('/Acceso/GuardarPrecio', { id: id, valor: valor }, function(res) {
+                if(res.success) {
+                    Swal.fire({
+                        title: 'Actualizado',
+                        icon: 'success',
+                        timer: 1000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
+    </script>
+}

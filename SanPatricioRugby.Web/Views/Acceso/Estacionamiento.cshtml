@@ -1,0 +1,74 @@
+@model IEnumerable<SanPatricioRugby.DAL.Models.ConfiguracionPrecio>
+@using SanPatricioRugby.DAL.Models
+
+@{
+    ViewData["Title"] = "Cobro Estacionamiento";
+}
+
+<div class="container py-4">
+    <div class="text-center mb-5">
+        <h1 class="h3 fw-bold text-dark mb-1">COBRO ESTACIONAMIENTO</h1>
+        <p class="text-muted small">Haz clic para registrar el pago del vehículo</p>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var precio in Model.Where(p => p.Concepto.Contains("Estacionamiento")))
+        {
+            var tipo = precio.Concepto.Contains("Moto") ? TipoVehiculo.Moto : 
+                       precio.Concepto.Contains("Auto") ? TipoVehiculo.Auto : 
+                       precio.Concepto.Contains("Camioneta") ? TipoVehiculo.Camioneta : TipoVehiculo.Micro;
+            
+            var icon = tipo == TipoVehiculo.Moto ? "fa-motorcycle" : 
+                       tipo == TipoVehiculo.Auto ? "fa-car" : 
+                       tipo == TipoVehiculo.Camioneta ? "fa-truck-pickup" : "fa-bus";
+
+            <div class="col-12 col-md-6">
+                <button type="button" class="btn btn-outline-dark w-100 py-4 rounded-4 shadow-sm border-2 text-start position-relative" 
+                        onclick="cobrarEstacionamiento('@tipo', @precio.Valor)">
+                    <i class="fa-solid @icon fs-1 me-3 align-middle"></i>
+                    <div class="d-inline-block align-middle">
+                        <h4 class="h5 fw-bold mb-0">@precio.Concepto.Replace("Estacionamiento ", "")</h4>
+                        <p class="mb-0 text-primary-color fw-bold fs-4">$ @precio.Valor.ToString("N0")</p>
+                    </div>
+                    <i class="fa-solid fa-plus-circle position-absolute top-50 end-0 translate-middle-y me-4 opacity-50 fs-2"></i>
+                </button>
+            </div>
+        }
+    </div>
+
+    <div class="mt-5 text-center">
+        <a asp-action="Index" class="btn btn-light rounded-pill px-5 text-muted">VOLVER AL ESCÁNER</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function cobrarEstacionamiento(tipo, monto) {
+            Swal.fire({
+                title: 'Confirmar Cobro',
+                text: "¿Se ha recibido el pago del vehículo?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#cc0000',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Registrar Cobro',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Acceso/CobrarEstacionamiento', { tipo: tipo, monto: monto }, function(res) {
+                        if(res.success) {
+                            Swal.fire({
+                                title: '¡Cobrado!',
+                                text: 'Registro Exitoso',
+                                icon: 'success',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

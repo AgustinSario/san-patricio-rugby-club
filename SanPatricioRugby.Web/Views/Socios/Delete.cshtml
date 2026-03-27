@@ -1,0 +1,37 @@
+@model SanPatricioRugby.DAL.Models.Socio
+
+@{
+    ViewData["Title"] = "Eliminar Socio";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 text-center p-5">
+            <div class="mx-auto text-danger mb-4">
+                <i class="fa-solid fa-triangle-exclamation display-1 opacity-25"></i>
+            </div>
+            
+            <h2 class="fw-bold text-dark mb-2">¿Confirmas la eliminación?</h2>
+            <p class="text-muted mb-5 fs-5">Estás a punto de eliminar a <strong>@Model.ApellidoNombre</strong>. Esta acción también borrará todas sus cuotas y registros históricos asociados.</p>
+
+            <div class="bg-light p-4 rounded-3 border-start border-4 border-danger text-start mb-5">
+                <div class="mb-3">
+                    <small class="text-muted small">Nombre y Apellido:</small>
+                    <p class="fw-bold fs-5 mb-0">@Model.ApellidoNombre</p>
+                </div>
+                <div>
+                    <small class="text-muted small">DNI / Identificador:</small>
+                    <p class="fw-bold fs-5 mb-0">@Model.Dni / #@Model.NumeroIdentificador</p>
+                </div>
+            </div>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="Id" />
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    <a asp-action="Index" class="btn btn-light px-5 py-3 fw-bold border shadow-sm w-100 w-sm-auto me-sm-2">Cancelar</a>
+                    <button type="submit" class="btn btn-danger px-5 py-3 fw-bold shadow w-100 w-sm-auto">Eliminar Permanente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,81 @@
+@{
+    ViewData["Title"] = "Control de Acceso";
+}
+
+<div class="container py-3">
+    <div class="text-center mb-4">
+        <h1 class="h3 fw-bold text-dark mb-1">Control de Acceso</h1>
+        <p class="text-muted small">Escanea el QR del carnet o busca por DNI</p>
+    </div>
+
+    <!-- QR Scanner Section -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div id="reader" style="width: 100%; min-height: 300px; background: #000;"></div>
+        </div>
+        <div class="card-footer bg-white border-top-0 p-3 text-center">
+            <button id="startBtn" class="btn btn-primary btn-lg w-100 rounded-pill mb-2">
+                <i class="fa-solid fa-camera me-2"></i> Activar Cámara
+            </button>
+            <p id="statusMsg" class="text-muted small mb-0">La cámara está desactivada</p>
+        </div>
+    </div>
+
+    <!-- Manual Search Section -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4 text-center">
+            <label class="form-label fw-bold text-muted small mb-3">BÚSQUEDA MANUAL</label>
+            <form asp-action="Buscar" method="get" class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden">
+                <input type="text" name="term" class="form-control border-0 bg-light ps-4" placeholder="DNI o Nivel de Socio..." required>
+                <button class="btn btn-dark px-4" type="submit">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row g-3">
+        <div class="col-6">
+            <a asp-action="Estacionamiento" class="btn btn-outline-dark w-100 py-3 rounded-4 shadow-sm border-2">
+                <i class="fa-solid fa-car fs-2 mb-2 d-block"></i>
+                Estacionamiento
+            </a>
+        </div>
+        <div class="col-6">
+            <a asp-action="Reporte" class="btn btn-outline-dark w-100 py-3 rounded-4 shadow-sm border-2">
+                <i class="fa-solid fa-file-invoice-dollar fs-2 mb-2 d-block"></i>
+                Cierre de Caja
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        const html5QrCode = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        document.getElementById('startBtn').addEventListener('click', function() {
+            this.disabled = true;
+            document.getElementById('statusMsg').innerText = "Iniciando cámara...";
+            
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                config,
+                (decodedText) => {
+                    // Success!
+                    window.location.href = `/Acceso/Buscar?term=${decodedText}`;
+                },
+                (errorMessage) => {
+                    // parse error, ignore it.
+                }
+            ).catch(err => {
+                console.error(err);
+                document.getElementById('statusMsg').innerText = "Error al acceder a la cámara";
+                this.disabled = false;
+            });
+        });
+    </script>
+}

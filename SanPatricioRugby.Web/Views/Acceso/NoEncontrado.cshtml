@@ -1,0 +1,37 @@
+@using SanPatricioRugby.DAL.Models
+
+@{
+    ViewData["Title"] = "Socio No Encontrado";
+}
+
+<div class="container py-4">
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
+        <div class="card-body p-4 text-center bg-secondary text-white">
+            <div class="avatar-lg bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                <i class="fa-solid fa-user-slash fs-1"></i>
+            </div>
+            <h2 class="h3 fw-bold mb-0">No Registrado</h2>
+            <p class="mb-1 opacity-75">Búsqueda: @ViewData["Term"]</p>
+            <div class="mt-3">
+                <span class="badge bg-white text-secondary px-4 py-2 rounded-pill fs-5">
+                    <i class="fa-solid fa-circle-info me-2"></i> NO ES SOCIO
+                </span>
+                <h1 class="display-4 fw-black mt-3">COBRAR ENTRADA</h1>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white p-4">
+            <form asp-action="RegistrarIngreso" method="post" class="d-grid gap-3">
+                <input type="hidden" name="socioId" value="0" />
+                <input type="hidden" name="tipo" value="@TipoIngreso.NoSocio" />
+                <input type="hidden" name="monto" value="@ViewBag.PrecioNoSocio" />
+                
+                <button type="submit" class="btn btn-dark btn-lg py-3 rounded-pill fw-bold shadow">
+                    COBRAR ENTRADA NO SOCIO ($ @(((decimal)ViewBag.PrecioNoSocio).ToString("N0")))
+                </button>
+                
+                <a asp-action="Index" class="btn btn-light rounded-pill py-2 text-muted">CANCELAR / VOLVER</a>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,90 @@
+@model SanPatricioRugby.DAL.Models.Cuota
+@using SanPatricioRugby.DAL.Models
+
+@{
+    ViewData["Title"] = "Generar Cuota";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb bg-transparent p-0">
+                <li class="breadcrumb-item"><a asp-action="Index" class="text-primary fw-medium">Listado de Cuotas</a></li>
+                <li class="breadcrumb-item active fw-medium">Nuevo Período</li>
+            </ol>
+        </nav>
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white py-4 border-bottom">
+                <h4 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-file-invoice-dollar me-2 text-primary"></i> Generar Cargo de Cuota</h4>
+            </div>
+            <div class="card-body p-5">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+
+                    <div class="row mb-4">
+                        <div class="col-12 mb-3">
+                            <label asp-for="SocioId" class="form-label fw-semibold">Seleccionar Socio</label>
+                            <select asp-for="SocioId" class="form-select form-control-lg border-2 shadow-sm" asp-items="ViewBag.SocioId"></select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Mes" class="form-label fw-semibold">Mes</label>
+                            <select asp-for="Mes" class="form-select form-control-lg border-2 shadow-sm">
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Anio" class="form-label fw-semibold">Año</label>
+                            <input asp-for="Anio" class="form-control form-control-lg border-2 shadow-sm" type="number" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Monto" class="form-label fw-semibold">Importe de Cuota ($)</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-white border-2">$</span>
+                                <input asp-for="Monto" class="form-control border-2 shadow-sm" placeholder="Ej: 50500" />
+                            </div>
+                            <span asp-validation-for="Monto" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FechaVencimiento" class="form-label fw-semibold">Fecha de Vencimiento</label>
+                            <input asp-for="FechaVencimiento" class="form-control form-control-lg border-2 shadow-sm" type="date" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Estado" class="form-label fw-semibold">Estado Inicial</label>
+                            <select asp-for="Estado" class="form-select form-control-lg border-2 shadow-sm" asp-items="Html.GetEnumSelectList<EstadoPago>()"></select>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-light px-5 py-3 fw-bold border shadow-sm">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-5 py-3 fw-bold shadow">Asignar Cuota</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

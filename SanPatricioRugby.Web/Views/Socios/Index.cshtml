@@ -1,0 +1,165 @@
+@model SanPatricioRugby.Web.Models.PaginatedList<SanPatricioRugby.DAL.Models.Socio>
+
+@{
+    ViewData["Title"] = "Gestión de Socios";
+}
+
+<div class="container-fluid p-0">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-1 fw-bold text-dark">Gestión de Socios</h1>
+                <p class="text-muted mb-0">Administra la base de datos completa de socios del club.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-controller="Admin" asp-action="Importar" class="btn btn-outline-success d-flex align-items-center shadow-sm">
+                    <i class="fa-solid fa-file-excel me-2"></i> Importar Mensual
+                </a>
+                <a asp-action="Create" class="btn btn-primary d-flex align-items-center shadow-sm">
+                    <i class="fa-solid fa-plus me-2"></i> Nuevo Socio
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <form asp-action="Index" method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label fw-semibold text-muted small">Buscar por Nombre y Apellido</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control border-0 bg-light shadow-none" placeholder="Ingresa nombre..." />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold text-muted small">Buscar por DNI</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-id-card text-muted"></i></span>
+                        <input type="text" name="searchDni" value="@ViewData["CurrentDni"]" class="form-control border-0 bg-light shadow-none" placeholder="Ingresa DNI..." />
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-dark px-4 w-100 fw-bold">Filtrar</button>
+                    <a asp-action="Index" class="btn btn-light border px-3" title="Limpiar filtros">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 border-0">Nombre del Socio</th>
+
+                            <th class="border-0">Categoría / División</th>
+                            <th class="border-0">DNI</th>
+                            <th class="border-0">Estado</th>
+                            <th class="border-0 text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model) {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <span class="fw-bold">@item.ApellidoNombre.Substring(0, 1).ToUpper()</span>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 fw-semibold text-dark">@item.ApellidoNombre</p>
+                                        <small class="text-muted">@item.MedioPagoPredeterminado</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div>
+                                    <p class="mb-0 text-dark fw-medium">@item.TipoSocio</p>
+                                    <small class="text-muted">@item.Deporte | @item.Division</small>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="text-muted">@item.Dni</span>
+                            </td>
+                            <td>
+                                @if (item.EsActivo) {
+                                    <span class="badge bg-success bg-opacity-10 text-success border-0 px-3 py-2">Activo</span>
+                                } else {
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border-0 px-3 py-2">Inactivo</span>
+                                }
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group shadow-sm">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-light border" title="Detalle">
+                                        <i class="fa-solid fa-eye text-primary"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-light border" title="Editar">
+                                        <i class="fa-solid fa-pen-to-square text-warning"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-light border text-danger" title="Eliminar">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                        @if (!Model.Any()) {
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="fa-solid fa-users fs-1 mb-3 d-block opacity-25"></i>
+                                        <p>No se encontraron socios que coincidan con la búsqueda.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Pagination Section -->
+        @if (Model.TotalPages > 1) {
+            <div class="card-footer bg-white py-3 border-top d-flex justify-content-between align-items-center px-4">
+                <p class="text-muted mb-0 small">Página @Model.PageIndex de @Model.TotalPages</p>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                            <a class="page-link" asp-action="Index" 
+                               asp-route-pageNumber="@(Model.PageIndex - 1)" 
+                               asp-route-searchString="@ViewData["CurrentFilter"]"
+                               asp-route-searchDni="@ViewData["CurrentDni"]">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        
+                        @for (int i = 1; i <= Model.TotalPages; i++) {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" asp-action="Index" 
+                                   asp-route-pageNumber="@i"
+                                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                                   asp-route-searchDni="@ViewData["CurrentDni"]">@i</a>
+                            </li>
+                        }
+
+                        <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                            <a class="page-link" asp-action="Index" 
+                               asp-route-pageNumber="@(Model.PageIndex + 1)"
+                               asp-route-searchString="@ViewData["CurrentFilter"]"
+                               asp-route-searchDni="@ViewData["CurrentDni"]">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>
