@@ -52,7 +52,9 @@ namespace SanPatricioRugby.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "Error al procesar el archivo: " + ex.Message);
+                var message = ex.Message;
+                if (ex.InnerException != null) message += " " + ex.InnerException.Message;
+                ModelState.AddModelError("", message);
                 return View();
             }
         }

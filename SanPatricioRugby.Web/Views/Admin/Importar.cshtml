@@ -34,12 +34,12 @@
                     @Html.AntiForgeryToken()
                     
                     <div class="mb-4">
-                        <label for="excelFile" class="form-label fw-semibold text-muted small">Archivo Excel (.xlsx)</label>
+                        <label for="excelFile" class="form-label fw-semibold text-muted small">Seleccionar Archivo</label>
                         <div class="input-group">
                             <input type="file" name="excelFile" id="excelFile" class="form-control border-0 bg-light shadow-none py-3" accept=".xlsx" required />
                         </div>
-                        <div class="form-text mt-2">
-                            <i class="fa-solid fa-info-circle me-1"></i> Asegúrate de que el archivo contenga la hoja <strong>"LISTADO SOCIOS 2025 JAVIER "</strong>.
+                        <div class="form-text mt-2 text-danger">
+                            <i class="fa-solid fa-circle-info me-1"></i> El archivo debe contener una hoja llamada <strong>"Listado de Socios"</strong> o similar.
                         </div>
                     </div>
 

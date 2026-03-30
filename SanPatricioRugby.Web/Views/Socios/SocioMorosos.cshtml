@@ -1,0 +1,281 @@
+@using SanPatricioRugby.Web.Models
+@model PaginatedList<SanPatricioRugby.DAL.Models.Socio>
+@{
+    ViewData["Title"] = "Socios Morosos";
+    var currentYear = 2025;
+}
+
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h2 class="fw-bold text-dark mb-0"><i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>Reporte de Morosidad</h2>
+        <p class="text-muted mb-0">Listado de socios con cuotas pendientes en el período @currentYear</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a asp-action="Index" asp-controller="Dashboard" class="btn btn-outline-secondary border-secondary-subtle">
+            <i class="fa-solid fa-arrow-left me-1"></i> Volver al Dashboard
+        </a>
+        <a asp-action="ExportarMorosos" class="btn btn-danger bg-danger border-0 ms-2">
+            <i class="fa-solid fa-file-excel me-2"></i> Exportar Excel
+        </a>
+    </div>
+</div>
+
+<div class="card card-premium shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        <form asp-action="SocioMorosos" method="get" class="row g-3">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control border-0 bg-light shadow-none" placeholder="Buscar por nombre..." />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fa-solid fa-id-card text-muted"></i></span>
+                    <input type="text" name="searchDni" value="@ViewData["CurrentDni"]" class="form-control border-0 bg-light shadow-none" placeholder="Buscar por DNI..." />
+                </div>
+            </div>
+            <div class="col-md-3 d-grid">
+                <button type="submit" class="btn btn-primary bg-primary border-0">
+                    <i class="fa-solid fa-filter me-2"></i> Filtrar Lista
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card card-premium shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-muted small text-uppercase">
+                    <tr>
+                        <th class="ps-4 py-3 border-0">Socio</th>
+                        <th class="py-3 border-0">DNI</th>
+                        <th class="py-3 border-0">Teléfono</th>
+                        <th class="py-3 border-0">Meses Pendientes</th>
+                        <th class="py-3 border-0">Deuda Total</th>
+                        <th class="pe-4 py-3 border-0 text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var socio in Model)
+                    {
+                        var cuotasPendientes = socio.Cuotas
+                            .Where(c => c.Anio == currentYear && c.Estado != SanPatricioRugby.DAL.Models.EstadoPago.Pagado)
+                            .OrderBy(c => c.Mes)
+                            .ToList();
+                        
+                        var totalDeuda = cuotasPendientes.Sum(c => c.Monto);
+                        var meses = string.Join(", ", cuotasPendientes.Select(c => c.Mes));
+
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-weight: 600;">
+                                        @socio.ApellidoNombre.Substring(0, 1).ToUpper()
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">@socio.ApellidoNombre</h6>
+                                        <small class="text-muted">#@socio.NumeroIdentificador</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="text-dark">@socio.Dni</span></td>
+                            <td><span class="text-dark">@socio.Celular</span></td>
+                            <td>
+                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2">
+                                    @(cuotasPendientes.Count) mes(es) [@meses]
+                                </span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-danger">$@totalDeuda.ToString("N0")</span>
+                            </td>
+                            <td class="pe-4 text-end">
+                                <a asp-action="Details" asp-route-id="@socio.Id" class="btn btn-sm btn-outline-primary border-0 rounded-circle" title="Ver Detalle">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                <button type="button" onclick="showWhatsAppModal('@socio.ApellidoNombre', '@socio.Celular', @cuotasPendientes.Count, @totalDeuda)" class="btn btn-sm btn-outline-success border-0 rounded-circle" title="Contactar WhatsApp">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-magnifying-glass fa-3x mb-3 opacity-25"></i>
+                                <p class="mb-0">No se encontraron socios que coincidan con la búsqueda.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (Model.TotalPages > 1)
+    {
+        <div class="card-footer bg-white border-top-0 p-4">
+            <nav aria-label="Navegación de deudores">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link border-0 rounded-start-pill px-4 shadow-none" 
+                           asp-action="SocioMorosos" 
+                           asp-route-pageNumber="@(Model.PageIndex - 1)" 
+                           asp-route-searchString="@ViewData["CurrentFilter"]"
+                           asp-route-searchDni="@ViewData["CurrentDni"]">
+                            <i class="fa-solid fa-chevron-left me-2"></i>Anterior
+                        </a>
+                    </li>
+                    <li class="page-item active"><span class="page-link border-0 px-4 shadow-none bg-primary">Página @Model.PageIndex de @Model.TotalPages</span></li>
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        <a class="page-link border-0 rounded-end-pill px-4 shadow-none" 
+                           asp-action="SocioMorosos" 
+                           asp-route-pageNumber="@(Model.PageIndex + 1)"
+                           asp-route-searchString="@ViewData["CurrentFilter"]"
+                           asp-route-searchDni="@ViewData["CurrentDni"]">
+                            Siguiente<i class="fa-solid fa-chevron-right ms-2"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+<!-- WhatsApp Modal -->
+<div class="modal fade" id="whatsappModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-success text-white border-0 py-3 rounded-top-4">
+                <h5 class="modal-title fw-bold"><i class="fa-brands fa-whatsapp me-2 fs-4"></i>Gestión de Cobro WhatsApp</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="waSocioName" />
+                
+                <div class="mb-4 text-center">
+                    <div id="waSocioDisplayName" class="fs-5 fw-bold text-dark mb-1">Nombre del Socio</div>
+                    <div class="text-muted small">San Patricio Rugby Club</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="waPhone" class="form-label text-muted small fw-bold mb-1">CELULAR DE DESTINO</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0 text-muted"><i class="fa-solid fa-phone"></i></span>
+                        <input type="text" id="waPhone" class="form-control border-0 bg-light p-3" placeholder="Ej: 54911..." />
+                    </div>
+                    <div class="form-text mt-1 small text-muted">Asegúrate de incluir el código de área sin el 0 y sin el 15.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-muted small fw-bold mb-1">DETALLE DE LA DEUDA</label>
+                    <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Cuotas vencidas:</span>
+                            <span id="waCuotasCount" class="fw-bold text-dark"></span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Monto Total:</span>
+                            <span id="waTotalAmount" class="fw-bold text-danger fs-5"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-muted small fw-bold mb-1">MENSAJE A ENVIAR (VISTA PREVIA)</label>
+                    <div class="p-3 bg-success bg-opacity-10 border-0 rounded-3 text-dark small" style="font-style: italic;">
+                        "Hola <span class="fw-bold">[Socio]</span>, te contactamos de San Patricio Rugby. Tenés <span class="fw-bold">[X]</span> cuotas pendientes por un total de <span class="fw-bold">[$Monto]</span>. Por favor contactanos al <span id="previewSenderPhone" class="fw-bold text-success">[Tu Nro]</span>. Atte: <span id="previewSenderName" class="fw-bold text-success">[Tu Firma]</span>"
+                    </div>
+                </div>
+
+                <hr class="my-4 border-light-subtle">
+
+                <div class="mb-0 px-2 py-1 bg-warning bg-opacity-10 rounded-3 border border-warning border-opacity-25">
+                    <div class="text-warning small fw-bold mb-2"><i class="fa-solid fa-gear me-1"></i>CONFIGURACIÓN DE TU FIRMA (SE GUARDA)</div>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label for="waSenderName" class="form-label text-muted x-small fw-bold">FIRMA / NOMBRE</label>
+                            <input type="text" id="waSenderName" oninput="updatePreview()" class="form-control form-control-sm border-0 bg-white" placeholder="Ej: Cobranzas SPR" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="waSenderPhone" class="form-label text-muted x-small fw-bold">TEL. CONTACTO</label>
+                            <input type="text" id="waSenderPhone" oninput="updatePreview()" class="form-control form-control-sm border-0 bg-white" placeholder="Ej: 3484222333" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-link text-muted text-decoration-none px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" onclick="confirmWhatsAppSend()" class="btn btn-success rounded-pill px-5 fw-bold shadow-sm py-2">
+                    <i class="fa-solid fa-paper-plane me-2"></i>Enviar Mensaje
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showWhatsAppModal(name, phone, cuotas, amount) {
+            document.getElementById('waSocioName').value = name;
+            document.getElementById('waSocioDisplayName').innerText = name;
+            
+            // Cargar configuración guardada
+            document.getElementById('waSenderName').value = localStorage.getItem('waSenderName') || "San Patricio Rugby Gestión";
+            document.getElementById('waSenderPhone').value = localStorage.getItem('waSenderPhone') || "";
+            
+            // Limpiar el teléfono del socio (sacar espacios, guiones, etc)
+            let cleanPhone = phone ? phone.replace(/\D/g, '') : '';
+            document.getElementById('waPhone').value = cleanPhone;
+            
+            document.getElementById('waCuotasCount').innerText = cuotas + " mes(es)";
+            document.getElementById('waTotalAmount').innerText = '$' + amount.toLocaleString('es-AR');
+            
+            updatePreview();
+            
+            var myModal = new bootstrap.Modal(document.getElementById('whatsappModal'));
+            myModal.show();
+        }
+
+        function updatePreview() {
+            let sName = document.getElementById('waSenderName').value || "[Tu Firma]";
+            let sPhone = document.getElementById('waSenderPhone').value || "[Tu Nro]";
+            document.getElementById('previewSenderName').innerText = sName;
+            document.getElementById('previewSenderPhone').innerText = sPhone;
+        }
+
+        function confirmWhatsAppSend() {
+            var name = document.getElementById('waSocioName').value;
+            var phone = document.getElementById('waPhone').value;
+            var cuotas = document.getElementById('waCuotasCount').innerText.replace(' mes(es)', '');
+            var amount = document.getElementById('waTotalAmount').innerText;
+            
+            // Datos del remitente (se guardan)
+            var senderName = document.getElementById('waSenderName').value;
+            var senderPhone = document.getElementById('waSenderPhone').value;
+            
+            if (!senderName || !senderPhone) {
+                alert('Por favor, configure su firma y teléfono de contacto arriba.');
+                return;
+            }
+
+            localStorage.setItem('waSenderName', senderName);
+            localStorage.setItem('waSenderPhone', senderPhone);
+
+            if (!phone || phone.length < 10) {
+                alert('Por favor, ingrese un número de teléfono válido para el socio (ej: 54911...).');
+                return;
+            }
+            
+            var message = `Hola ${name}, te contactamos de San Patricio Rugby. Tenés ${cuotas} cuotas pendientes por un total de ${amount}. Por favor, ponete en contacto con nosotros al ${senderPhone} para regularizar tu situación. Atte: ${senderName}. ¡Muchas gracias!`;
+            
+            var url = "https://api.whatsapp.com/send?phone=" + phone + "&text=" + encodeURIComponent(message);
+            window.open(url, '_blank');
+            
+            bootstrap.Modal.getInstance(document.getElementById('whatsappModal')).hide();
+        }
+    </script>
+}
