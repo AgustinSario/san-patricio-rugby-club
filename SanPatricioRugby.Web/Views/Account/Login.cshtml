@@ -100,6 +100,38 @@
             font-size: 0.875rem;
             margin-top: 5px;
         }
+        
+        /* Mobile Responsive Adjustments */
+        @@media (max-width: 768px) {
+            body {
+                height: auto;
+                min-height: 100vh;
+                display: flex;
+                padding: 15px;
+                align-items: center;
+            }
+            .login-container {
+                flex-direction: column;
+                max-width: 500px;
+                min-height: auto;
+                margin: auto;
+            }
+            .login-image {
+                border-right: none;
+                border-bottom: 1px solid #f0f0f0;
+                padding: 30px 20px;
+            }
+            .login-image img {
+                max-width: 150px;
+            }
+            .login-form-container {
+                padding: 30px 20px;
+            }
+            .login-form-container h3 {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+        }
     </style>
 </head>
 <body>
