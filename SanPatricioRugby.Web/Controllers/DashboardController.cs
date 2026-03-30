@@ -24,25 +24,27 @@ namespace SanPatricioRugby.Web.Controllers
             }
             // Real Data from DB
             var totalSociosActivos = await _context.Socios.CountAsync(s => s.EsActivo);
+            var currentYear = 2025; // Year for current sync
+            var currentMonth = DateTime.Now.Month;
             
-            // Morosos: Socios con al menos una cuota Vencida o Pendiente fuera de término
+            // Morosos: Socios con al menos una cuota no pagada en lo que va del 2025
             var sociosMorosos = await _context.Socios
-                .Where(s => s.EsActivo && s.Cuotas.Any(c => c.Estado == EstadoPago.Vencido))
+                .Where(s => s.EsActivo && s.Cuotas.Any(c => c.Anio == currentYear && c.Mes <= currentMonth && c.Estado != EstadoPago.Pagado))
                 .CountAsync();
 
             ViewBag.SociosActivos = totalSociosActivos;
             ViewBag.SociosMorosos = sociosMorosos;
             ViewBag.SociosAlDia = totalSociosActivos - sociosMorosos;
 
-            // Ultimos movimientos
-            var ultimosPagos = await _context.Cuotas
-                .Include(c => c.Socio)
-                .Where(c => c.Estado == EstadoPago.Pagado)
-                .OrderByDescending(c => c.FechaPago)
-                .Take(5)
+            // Socios Becados: Activos con "BECA" en TipoSocio o Acuerdos
+            var becados = await _context.Socios
+                .Where(s => s.EsActivo && 
+                            ((s.TipoSocio != null && s.TipoSocio.ToUpper().Contains("BECA")) || 
+                             (s.Acuerdos != null && s.Acuerdos.ToUpper().Contains("BECA"))))
+                .OrderBy(s => s.ApellidoNombre)
                 .ToListAsync();
 
-            return View(ultimosPagos);
+            return View(becados);
         }
     }
 }

@@ -42,6 +42,12 @@ namespace SanPatricioRugby.DAL.Models
         [Display(Name = "Titular de Tarjeta")]
         public string? NombreTitularTarjeta { get; set; }
 
+        [Display(Name = "Acuerdos")]
+        public string? Acuerdos { get; set; }
+
+        [Display(Name = "Fecha Nacimiento 2")]
+        public DateTime? FechaNacimiento2 { get; set; }
+
         public bool EsActivo { get; set; } = true;
 
         public virtual ICollection<Cuota> Cuotas { get; set; } = new List<Cuota>();

@@ -60,6 +60,24 @@ body {
     overflow: hidden;
 }
 
+.kpi-card-clickable {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 160px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.card-link-hover:hover .kpi-card-clickable {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(220, 53, 69, 0.15);
+    background-color: #fffafa;
+}
+
 /* KPI Icons */
 .kpi-icon {
     position: absolute;
@@ -71,8 +89,19 @@ body {
     transition: transform 0.3s ease;
 }
 
-.card-premium:hover .kpi-icon {
+.card-premium:hover .kpi-icon,
+.kpi-card-clickable:hover .icon-bg-danger {
     transform: scale(1.1) rotate(5deg);
+}
+
+.icon-bg-danger {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    font-size: 100px;
+    opacity: 0.1;
+    color: #ef4444;
+    transition: transform 0.3s ease;
 }
 
 /* Typography for KPIs */

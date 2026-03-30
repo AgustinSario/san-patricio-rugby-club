@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using ClosedXML.Excel;
 
-string excelPath = @"C:\Users\Agustin\.gemini\antigravity\scratch\SanPatricioRugby\MONICA DIAZ LISTADO DE SOCIOS DEBITO Y TRASFERENCIAS 2025 (6).xlsx";
+string excelPath = @"C:\Users\Agustin\.gemini\antigravity\scratch\SanPatricioRugby\MONICA DIAZ LISTADO DE SOCIOS DEBITO Y TRASFERENCIAS 2025 (7) (3).xlsx";
 
 using (var workbook = new XLWorkbook(excelPath))
 {

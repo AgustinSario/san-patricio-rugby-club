@@ -211,5 +211,110 @@ namespace SanPatricioRugby.Web.Controllers
         {
             return _context.Socios.Any(e => e.Id == id);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CobrarCuota(int id)
+        {
+            var cuota = await _context.Cuotas
+                .Include(c => c.Socio)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (cuota == null) return NotFound();
+
+            // 1. Marcar como pagada
+            cuota.Estado = EstadoPago.Pagado;
+            cuota.FechaPago = DateTime.Now;
+            
+            // Asignar medio de pago si el socio lo tiene (si no, queda el anterior)
+            if (cuota.Socio != null && cuota.Socio.MedioPagoPredeterminado != MedioPago.NoRegistrado)
+            {
+                cuota.MedioPagoUtilizado = cuota.Socio.MedioPagoPredeterminado;
+            }
+
+            // 2. Buscar si tiene cuotas anteriores sin pagar para avisar
+            var deudasAnteriores = await _context.Cuotas
+                .Where(c => c.SocioId == cuota.SocioId 
+                            && c.Id != cuota.Id 
+                            && c.Estado != EstadoPago.Pagado 
+                            && (c.Anio < cuota.Anio || (c.Anio == cuota.Anio && c.Mes < cuota.Mes)))
+                .OrderBy(c => c.Anio).ThenBy(c => c.Mes)
+                .ToListAsync();
+
+            if (deudasAnteriores.Any())
+            {
+                var mesesDeuda = string.Join(", ", deudasAnteriores.Select(c => $"{c.Mes}/{c.Anio}"));
+                TempData["Warning"] = $"Se registró el pago de {cuota.Mes}/{cuota.Anio}. ¡AVISO! El socio aún debe periodos ANTERIORES: {mesesDeuda}.";
+            }
+            else
+            {
+                TempData["Success"] = $"El pago de {cuota.Mes}/{cuota.Anio} se registró con éxito.";
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new { id = cuota.SocioId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerarPeriodo(int id)
+        {
+            var socio = await _context.Socios
+                .Include(s => s.Cuotas)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (socio == null) return NotFound();
+
+            // Buscar la última cuota registrada para saber qué mes sigue
+            var ultimaCuota = socio.Cuotas
+                .OrderByDescending(c => c.Anio)
+                .ThenByDescending(c => c.Mes)
+                .FirstOrDefault();
+
+            int nuevoMes, nuevoAnio;
+            decimal monto = 50500; // Monto por defecto si no hay cuotas previas
+
+            if (ultimaCuota != null)
+            {
+                nuevoMes = ultimaCuota.Mes + 1;
+                nuevoAnio = ultimaCuota.Anio;
+                monto = ultimaCuota.Monto;
+
+                if (nuevoMes > 12)
+                {
+                    nuevoMes = 1;
+                    nuevoAnio++;
+                }
+            }
+            else
+            {
+                nuevoMes = DateTime.Now.Month;
+                nuevoAnio = DateTime.Now.Year;
+            }
+
+            // Validar si ya existe ese periodo para no duplicar
+            if (socio.Cuotas.Any(c => c.Mes == nuevoMes && c.Anio == nuevoAnio))
+            {
+                TempData["Warning"] = $"El periodo {nuevoMes}/{nuevoAnio} ya existe para este socio.";
+                return RedirectToAction(nameof(Details), new { id = socio.Id });
+            }
+
+            var nuevaCuota = new Cuota
+            {
+                SocioId = socio.Id,
+                Mes = nuevoMes,
+                Anio = nuevoAnio,
+                Monto = monto,
+                Estado = EstadoPago.Pendiente,
+                FechaVencimiento = new DateTime(nuevoAnio, nuevoMes, 10)
+            };
+
+            _context.Cuotas.Add(nuevaCuota);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Periodo {nuevoMes}/{nuevoAnio} generado correctamente.";
+            return RedirectToAction(nameof(Details), new { id = socio.Id });
+        }
     }
 }
