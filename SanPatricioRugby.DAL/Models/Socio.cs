@@ -50,6 +50,9 @@ namespace SanPatricioRugby.DAL.Models
 
         public bool EsActivo { get; set; } = true;
 
+        [Display(Name = "Ruta del Carnet")]
+        public string? CarnetPath { get; set; }
+
         public virtual ICollection<Cuota> Cuotas { get; set; } = new List<Cuota>();
     }
 }

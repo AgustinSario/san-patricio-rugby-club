@@ -86,81 +86,150 @@
             </div>
 
             <div class="col-md-8">
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-receipt me-2 text-danger"></i> Historial de Cuotas</h5>
-                        <form asp-action="GenerarPeriodo" asp-route-id="@Model.Id" method="post">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Generar Período</button>
-                        </form>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="bg-light small text-uppercase fw-bold">
-                                    <tr>
-                                        <th class="ps-4">Periodo</th>
-                                        <th>Vencimiento</th>
-                                        <th>Importe</th>
-                                        <th>Estado</th>
-                                        <th class="text-end pe-4">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (Model.Cuotas != null && Model.Cuotas.Any()) {
-                                        @foreach (var cuota in Model.Cuotas.OrderByDescending(c => c.Anio).ThenByDescending(c => c.Mes)) {
-                                            <tr>
-                                                <td class="ps-4 fw-medium">@cuota.Mes/@cuota.Anio</td>
-                                                <td class="small">@cuota.FechaVencimiento.ToShortDateString()</td>
-                                                <td class="fw-bold">$ @cuota.Monto.ToString("N0")</td>
-                                                <td>
-                                                    @switch (cuota.Estado) {
-                                                        case SanPatricioRugby.DAL.Models.EstadoPago.Pagado:
-                                                            <span class="badge bg-success bg-opacity-10 text-success border-0 px-2 py-1 small">Pagado</span>
-                                                            break;
-                                                        case SanPatricioRugby.DAL.Models.EstadoPago.Vencido:
-                                                            <span class="badge bg-danger bg-opacity-10 text-danger border-0 px-2 py-1 small">Vencido</span>
-                                                            break;
-                                                        default:
-                                                            <span class="badge bg-warning bg-opacity-10 text-warning border-0 px-2 py-1 small">Pendiente</span>
-                                                            break;
-                                                    }
-                                                </td>
-                                                <td class="text-end pe-4">
-                                                    @if (cuota.Estado != SanPatricioRugby.DAL.Models.EstadoPago.Pagado) {
-                                                        <form asp-action="CobrarCuota" asp-route-id="@cuota.Id" method="post" class="d-inline">
-                                                            <button type="submit" class="btn btn-sm btn-success shadow-sm px-3 rounded-pill bg-success border-0">
-                                                                <i class="fa-solid fa-hand-holding-dollar me-1"></i> Cobrar
-                                                            </button>
-                                                        </form>
-                                                    }
-                                                </td>
-                                            </tr>
-                                        }
-                                    } else {
-                                        <tr>
-                                            <td colspan="5" class="text-center py-4 text-muted small">No hay registros de cuotas para este socio.</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                <ul class="nav nav-tabs mb-4 border-0" id="socioTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-bold border-0 border-bottom border-3 text-dark" id="cuotas-tab" data-bs-toggle="tab" data-bs-target="#cuotas" type="button" role="tab" aria-controls="cuotas" aria-selected="true">
+                            <i class="fa-solid fa-receipt me-2"></i> Pagos y Cuotas
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold border-0 border-bottom border-3 text-dark" id="carnet-tab" data-bs-toggle="tab" data-bs-target="#carnet" type="button" role="tab" aria-controls="carnet" aria-selected="false">
+                            <i class="fa-solid fa-id-card me-2"></i> Carnet Digital
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold border-0 border-bottom border-3 text-dark" id="club-tab" data-bs-toggle="tab" data-bs-target="#club" type="button" role="tab" aria-controls="club" aria-selected="false">
+                            <i class="fa-solid fa-rugby-ball me-2"></i> Datos del Club
+                        </button>
+                    </li>
+                </ul>
 
-                <div class="card border-0 shadow-sm rounded-4 p-4">
-                    <h6 class="fw-bold text-dark mb-3 border-bottom pb-2"><i class="fa-solid fa-rugby-ball me-2 text-success"></i> Datos del Club</h6>
-                    <div class="row">
-                        <div class="col-sm-4 mb-3 mb-sm-0">
-                            <small class="text-muted d-block">Deporte:</small>
-                            <p class="fw-medium mb-0">@Model.Deporte</p>
+                <div class="tab-content" id="socioTabContent">
+                    <!-- Tab Cuotas -->
+                    <div class="tab-pane fade show active" id="cuotas" role="tabpanel" aria-labelledby="cuotas-tab">
+                        <div class="card border-0 shadow-sm rounded-4 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-receipt me-2 text-danger"></i> Historial de Cuotas</h5>
+                                <form asp-action="GenerarPeriodo" asp-route-id="@Model.Id" method="post">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Generar Período</button>
+                                </form>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="bg-light small text-uppercase fw-bold">
+                                            <tr>
+                                                <th class="ps-4">Periodo</th>
+                                                <th>Vencimiento</th>
+                                                <th>Importe</th>
+                                                <th>Estado</th>
+                                                <th class="text-end pe-4">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.Cuotas != null && Model.Cuotas.Any()) {
+                                                @foreach (var cuota in Model.Cuotas.OrderByDescending(c => c.Anio).ThenByDescending(c => c.Mes)) {
+                                                    <tr>
+                                                        <td class="ps-4 fw-medium">@cuota.Mes/@cuota.Anio</td>
+                                                        <td class="small">@cuota.FechaVencimiento.ToShortDateString()</td>
+                                                        <td class="fw-bold">$ @cuota.Monto.ToString("N0")</td>
+                                                        <td>
+                                                            @switch (cuota.Estado) {
+                                                                case SanPatricioRugby.DAL.Models.EstadoPago.Pagado:
+                                                                    <span class="badge bg-success bg-opacity-10 text-success border-0 px-2 py-1 small">Pagado</span>
+                                                                    break;
+                                                                case SanPatricioRugby.DAL.Models.EstadoPago.Vencido:
+                                                                    <span class="badge bg-danger bg-opacity-10 text-danger border-0 px-2 py-1 small">Vencido</span>
+                                                                    break;
+                                                                default:
+                                                                    <span class="badge bg-warning bg-opacity-10 text-warning border-0 px-2 py-1 small">Pendiente</span>
+                                                                    break;
+                                                            }
+                                                        </td>
+                                                        <td class="text-end pe-4">
+                                                            @if (cuota.Estado != SanPatricioRugby.DAL.Models.EstadoPago.Pagado) {
+                                                                <form asp-action="CobrarCuota" asp-route-id="@cuota.Id" method="post" class="d-inline">
+                                                                    <button type="submit" class="btn btn-sm btn-success shadow-sm px-3 rounded-pill bg-success border-0">
+                                                                        <i class="fa-solid fa-hand-holding-dollar me-1"></i> Cobrar
+                                                                    </button>
+                                                                </form>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            } else {
+                                                <tr>
+                                                    <td colspan="5" class="text-center py-4 text-muted small">No hay registros de cuotas para este socio.</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-sm-4 mb-3 mb-sm-0">
-                            <small class="text-muted d-block">División / Equipo:</small>
-                            <p class="fw-medium mb-0">@Model.Division</p>
+                    </div>
+
+                    <!-- Tab Carnet -->
+                    <div class="tab-pane fade" id="carnet" role="tabpanel" aria-labelledby="carnet-tab">
+                        <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                            @if (!string.IsNullOrEmpty(Model.CarnetPath))
+                            {
+                                <div class="mb-4">
+                                    <img src="~/@Model.CarnetPath" class="img-fluid rounded-4 shadow-lg" style="max-width: 500px;" alt="Carnet Digital" />
+                                </div>
+                                <div class="d-flex justify-content-center gap-3">
+                                    <form asp-action="GenerarCarnet" asp-route-id="@Model.Id" method="post">
+                                        <button type="submit" class="btn btn-danger px-4 shadow-sm">
+                                            <i class="fa-solid fa-arrows-rotate me-2"></i> Regenerar Carnet
+                                        </button>
+                                    </form>
+                                    <a asp-action="DescargarCarnetPdf" asp-route-id="@Model.Id" class="btn btn-dark px-4 shadow-sm">
+                                        <i class="fa-solid fa-file-pdf me-2"></i> Descargar PDF
+                                    </a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="py-5">
+                                    <i class="fa-solid fa-id-card-clip display-1 text-muted mb-4"></i>
+                                    <h5 class="text-muted">Aún no se ha generado un carnet para este socio.</h5>
+                                    <p class="text-muted small mb-4">Haz clic en el botón inferior para generarlo ahora.</p>
+                                    <form asp-action="GenerarCarnet" asp-route-id="@Model.Id" method="post">
+                                        <button type="submit" class="btn btn-danger btn-lg px-5 shadow-sm">
+                                            <i class="fa-solid fa-wand-magic-sparkles me-2"></i> Generar Carnet Digital
+                                        </button>
+                                    </form>
+                                </div>
+                            }
                         </div>
-                        <div class="col-sm-4">
-                            <small class="text-muted d-block">Categoría Socio:</small>
-                            <p class="fw-medium mb-0">@Model.TipoSocio</p>
+                    </div>
+
+                    <!-- Tab Datos Club -->
+                    <div class="tab-pane fade" id="club" role="tabpanel" aria-labelledby="club-tab">
+                        <div class="card border-0 shadow-sm rounded-4 p-4">
+                            <h6 class="fw-bold text-dark mb-3 border-bottom pb-2"><i class="fa-solid fa-rugby-ball me-2 text-success"></i> Información Institucional</h6>
+                            <div class="row">
+                                <div class="col-sm-4 mb-3">
+                                    <small class="text-muted d-block">Deporte:</small>
+                                    <p class="fw-medium mb-0">@Model.Deporte</p>
+                                </div>
+                                <div class="col-sm-4 mb-3">
+                                    <small class="text-muted d-block">División / Equipo:</small>
+                                    <p class="fw-medium mb-0">@Model.Division</p>
+                                </div>
+                                <div class="col-sm-4 mb-3">
+                                    <small class="text-muted d-block">Categoría Socio:</small>
+                                    <p class="fw-medium mb-0">@Model.TipoSocio</p>
+                                </div>
+                                <div class="col-sm-4">
+                                    <small class="text-muted d-block">ID Sistema:</small>
+                                    <p class="fw-medium mb-0">#@Model.Id</p>
+                                </div>
+                                <div class="col-sm-8">
+                                    <small class="text-muted d-block">Acuerdos / Becas:</small>
+                                    <p class="fw-medium mb-0 text-danger">@(string.IsNullOrEmpty(Model.Acuerdos) ? "Sin acuerdos registrados" : Model.Acuerdos)</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

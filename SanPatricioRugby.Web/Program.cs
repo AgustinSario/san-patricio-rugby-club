@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using SanPatricioRugby.DAL;
 using SanPatricioRugby.DAL.Models;
 using SanPatricioRugby.Web.Services;
+using QuestPDF.Infrastructure;
+
+// Configurar Licencia de QuestPDF (requerido)
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +30,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => {
 
 builder.Services.AddScoped<ImportService>();
 builder.Services.AddScoped<IAccesoService, AccesoService>();
+builder.Services.AddScoped<ICarnetService, CarnetService>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -43,6 +48,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();

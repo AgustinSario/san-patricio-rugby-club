@@ -4,6 +4,11 @@ using SanPatricioRugby.DAL;
 using SanPatricioRugby.DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using SanPatricioRugby.Web.Models;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using QuestPDF.Previewer;
+using SanPatricioRugby.Web.Services;
 
 namespace SanPatricioRugby.Web.Controllers
 {
@@ -11,10 +16,14 @@ namespace SanPatricioRugby.Web.Controllers
     public class SociosController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ICarnetService _carnetService;
+        private readonly IWebHostEnvironment _env;
 
-        public SociosController(ApplicationDbContext context)
+        public SociosController(ApplicationDbContext context, ICarnetService carnetService, IWebHostEnvironment env)
         {
             _context = context;
+            _carnetService = carnetService;
+            _env = env;
         }
 
         // GET: Socios
@@ -315,6 +324,197 @@ namespace SanPatricioRugby.Web.Controllers
 
             TempData["Success"] = $"Periodo {nuevoMes}/{nuevoAnio} generado correctamente.";
             return RedirectToAction(nameof(Details), new { id = socio.Id });
+        }
+
+        // GET: Socios/Becados
+        public async Task<IActionResult> Becados(string searchString, string searchDni, int? pageNumber)
+        {
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentDni"] = searchDni;
+
+            var query = _context.Socios
+                .Where(s => s.EsActivo && 
+                            ((s.TipoSocio != null && s.TipoSocio.ToUpper().Contains("BECA")) || 
+                             (s.Acuerdos != null && s.Acuerdos.ToUpper().Contains("BECA"))));
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(s => s.ApellidoNombre.Contains(searchString));
+            }
+
+            if (!string.IsNullOrEmpty(searchDni))
+            {
+                query = query.Where(s => s.Dni.Contains(searchDni));
+            }
+
+            query = query.OrderBy(s => s.ApellidoNombre);
+
+            int pageSize = 10;
+            return View(await PaginatedList<Socio>.CreateAsync(query.AsNoTracking(), pageNumber ?? 1, pageSize));
+        }
+
+        public async Task<IActionResult> ExportarBecadosPdf()
+        {
+            var becados = await _context.Socios
+                .Where(s => s.EsActivo && 
+                            ((s.TipoSocio != null && s.TipoSocio.ToUpper().Contains("BECA")) || 
+                             (s.Acuerdos != null && s.Acuerdos.ToUpper().Contains("BECA"))))
+                .OrderBy(s => s.ApellidoNombre)
+                .ToListAsync();
+
+            var data = QuestPDF.Fluent.Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(QuestPDF.Helpers.PageSizes.A4);
+                    page.Margin(1, QuestPDF.Infrastructure.Unit.Centimetre);
+                    page.PageColor(QuestPDF.Helpers.Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily(QuestPDF.Helpers.Fonts.Arial));
+
+                    page.Header().Row(row =>
+                    {
+                        row.RelativeItem().Column(col =>
+                        {
+                            col.Item().Text("SAN PATRICIO RUGBY CLUB").FontSize(20).SemiBold().FontColor(QuestPDF.Helpers.Colors.Red.Medium);
+                            col.Item().Text("Listado de Socios Becados").FontSize(14).Medium();
+                        });
+
+                        row.ConstantItem(100).AlignRight().Text($"{DateTime.Now:dd/MM/yyyy}").FontSize(10).FontColor(QuestPDF.Helpers.Colors.Grey.Medium);
+                    });
+
+                    page.Content().PaddingVertical(1, QuestPDF.Infrastructure.Unit.Centimetre).Column(col =>
+                    {
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.ConstantColumn(30);
+                                columns.RelativeColumn(3);
+                                columns.RelativeColumn(1.5f);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(2);
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Element(CellStyle).Text("#");
+                                header.Cell().Element(CellStyle).Text("Socio");
+                                header.Cell().Element(CellStyle).Text("DNI");
+                                header.Cell().Element(CellStyle).Text("Tipo");
+                                header.Cell().Element(CellStyle).Text("Acuerdos");
+
+                                QuestPDF.Infrastructure.IContainer CellStyle(QuestPDF.Infrastructure.IContainer container) => container.DefaultTextStyle(x => x.SemiBold()).PaddingVertical(5).BorderBottom(1).BorderColor(QuestPDF.Helpers.Colors.Black);
+                            });
+
+                            int i = 1;
+                            foreach (var socio in becados)
+                            {
+                                table.Cell().Element(CellStyle).Text(i++.ToString());
+                                table.Cell().Element(CellStyle).Text(socio.ApellidoNombre);
+                                table.Cell().Element(CellStyle).Text(socio.Dni ?? "-");
+                                table.Cell().Element(CellStyle).Text(socio.TipoSocio ?? "-");
+                                table.Cell().Element(CellStyle).Text(socio.Acuerdos ?? "-");
+
+                                QuestPDF.Infrastructure.IContainer CellStyle(QuestPDF.Infrastructure.IContainer container) => container.PaddingVertical(5).BorderBottom(1).BorderColor(QuestPDF.Helpers.Colors.Grey.Lighten2);
+                            }
+                        });
+                    });
+
+                    page.Footer().AlignCenter().Text(x =>
+                    {
+                        x.Span("Página ");
+                        x.CurrentPageNumber();
+                    });
+                });
+            });
+
+            using (var stream = new System.IO.MemoryStream())
+            {
+                data.GeneratePdf(stream);
+                return File(stream.ToArray(), "application/pdf", $"Becados_{DateTime.Now:yyyyMMdd}.pdf");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerarCarnet(int id)
+        {
+            var socio = await _context.Socios.FindAsync(id);
+            if (socio == null) return NotFound();
+
+            if (string.IsNullOrEmpty(socio.Dni))
+            {
+                TempData["Warning"] = "No se puede generar el carnet porque falta el DNI del socio.";
+                return RedirectToAction(nameof(Details), new { id = socio.Id });
+            }
+
+            try
+            {
+                var relativePath = await _carnetService.GenerarCarnetImagenAsync(socio, _env.ContentRootPath);
+                socio.CarnetPath = relativePath;
+                _context.Update(socio);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "¡Carnet generado con éxito!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Warning"] = "Error al generar el carnet: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(Details), new { id = socio.Id });
+        }
+
+        public async Task<IActionResult> DescargarCarnetPdf(int id)
+        {
+            var socio = await _context.Socios.FindAsync(id);
+            if (socio == null) return NotFound();
+
+            if (string.IsNullOrEmpty(socio.Dni))
+            {
+                return BadRequest("El socio no tiene DNI cargado.");
+            }
+
+            try
+            {
+                var pdfBytes = await _carnetService.GenerarCarnetPdfAsync(socio, _env.ContentRootPath);
+                return File(pdfBytes, "application/pdf", $"Carnet_{socio.ApellidoNombre.Replace(" ", "_")}.pdf");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Error al generar el PDF: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerarTodosLosCarnets()
+        {
+            var socios = await _context.Socios
+                .Where(s => s.EsActivo && !string.IsNullOrEmpty(s.Dni))
+                .ToListAsync();
+
+            int generados = 0;
+            int errores = 0;
+
+            foreach (var socio in socios)
+            {
+                try
+                {
+                    var relativePath = await _carnetService.GenerarCarnetImagenAsync(socio, _env.ContentRootPath);
+                    socio.CarnetPath = relativePath;
+                    generados++;
+                }
+                catch
+                {
+                    errores++;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"Proceso finalizado. Carnets generados: {generados}. Errores: {errores}.";
+            
+            return RedirectToAction(nameof(Index));
         }
     }
 }

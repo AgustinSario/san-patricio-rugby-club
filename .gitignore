@@ -482,3 +482,8 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Generated Carnets
+SanPatricioRugby.Web/wwwroot/images/carnets/
+Carnet.jpeg
+SanPatricioRugby.Web/wwwroot/images/image_4.png
