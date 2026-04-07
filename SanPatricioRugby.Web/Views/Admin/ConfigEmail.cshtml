@@ -1,0 +1,198 @@
+@model SanPatricioRugby.DAL.Models.ConfiguracionEmail
+
+@{
+    ViewData["Title"] = "Configuración de Email";
+}
+
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="h3 mb-1 fw-bold text-dark">
+                <i class="fa-solid fa-envelope-circle-check me-2 text-primary"></i>
+                Configuración de Email
+            </h1>
+            <p class="text-muted mb-0">Configurá el servidor de correo para el envío automático de recibos de pago.</p>
+        </div>
+        <a asp-controller="Admin" asp-action="Index" class="btn btn-light border">
+            <i class="fa-solid fa-arrow-left me-1"></i> Volver
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success d-flex align-items-center border-0 rounded-3 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-circle-check me-2 fs-5"></i>
+        <div>@TempData["Success"]</div>
+    </div>
+}
+
+<div class="row g-4">
+    <!-- Formulario SMTP -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white border-bottom py-3 px-4">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fa-solid fa-server me-2 text-muted"></i>
+                    Datos del servidor SMTP
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="ConfigEmail" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="EmailRemitente" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="EmailRemitente" class="form-control" placeholder="club@sanpatricio.com" />
+                        <span asp-validation-for="EmailRemitente" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="NombreRemitente" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="NombreRemitente" class="form-control" placeholder="San Patricio Rugby Club" />
+                        <span asp-validation-for="NombreRemitente" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-8">
+                            <label asp-for="SmtpHost" class="form-label fw-semibold small text-muted"></label>
+                            <input asp-for="SmtpHost" class="form-control" placeholder="smtp.gmail.com" />
+                            <span asp-validation-for="SmtpHost" class="text-danger small"></span>
+                        </div>
+                        <div class="col-4">
+                            <label asp-for="SmtpPort" class="form-label fw-semibold small text-muted"></label>
+                            <input asp-for="SmtpPort" class="form-control" type="number" />
+                            <span asp-validation-for="SmtpPort" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SmtpUser" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="SmtpUser" class="form-control" placeholder="tucuenta@gmail.com" autocomplete="username" />
+                        <span asp-validation-for="SmtpUser" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SmtpPassword" class="form-label fw-semibold small text-muted"></label>
+                        <div class="input-group">
+                            <input asp-for="SmtpPassword" id="smtpPass" class="form-control" type="password" placeholder="••••••••••••••••" autocomplete="current-password" />
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePass()">
+                                <i class="fa-solid fa-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="SmtpPassword" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input asp-for="UsarSsl" class="form-check-input" type="checkbox" role="switch" />
+                            <label asp-for="UsarSsl" class="form-check-label fw-semibold small text-muted"></label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm mb-4">
+                        <i class="fa-solid fa-floppy-disk me-2"></i> Guardar Configuración
+                    </button>
+
+                    <h5 class="mb-4 fw-semibold pt-3 border-top">
+                        <i class="fa-solid fa-building me-2 text-muted"></i>
+                        Datos del Club (para el Recibo PDF)
+                    </h5>
+
+                    <div class="mb-3">
+                        <label asp-for="NombreClub" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="NombreClub" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="RazonSocial" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="RazonSocial" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Domicilio" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="Domicilio" class="form-control" />
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Cuit" class="form-label fw-semibold small text-muted"></label>
+                            <input asp-for="Cuit" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="IngresosBrutos" class="form-label fw-semibold small text-muted"></label>
+                            <input asp-for="IngresosBrutos" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="InicioActividades" class="form-label fw-semibold small text-muted"></label>
+                            <input asp-for="InicioActividades" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CondicionIva" class="form-label fw-semibold small text-muted"></label>
+                            <input asp-for="CondicionIva" class="form-control" />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm">
+                        <i class="fa-solid fa-floppy-disk me-2"></i> Guardar Todo
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel informativo -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 bg-light h-auto">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-3">
+                    <i class="fa-brands fa-google text-danger me-2"></i>
+                    ¿Cómo usar Gmail?
+                </h6>
+                <ol class="small text-muted lh-lg ps-3">
+                    <li>Ingresá a tu cuenta Google</li>
+                    <li>Andá a <strong>Seguridad → Verificación en 2 pasos</strong> (debe estar activa)</li>
+                    <li>Buscá <strong>"Contraseñas de aplicaciones"</strong></li>
+                    <li>Creá una contraseña para "Correo / Windows"</li>
+                    <li>Usá esa contraseña de 16 caracteres en el campo Contraseña SMTP</li>
+                </ol>
+                <hr class="my-3">
+                <h6 class="fw-bold mb-3">
+                    <i class="fa-solid fa-gear text-secondary me-2"></i>
+                    Valores recomendados para Gmail
+                </h6>
+                <table class="table table-sm table-borderless small mb-0">
+                    <tr><td class="text-muted">Host SMTP</td><td class="fw-semibold">smtp.gmail.com</td></tr>
+                    <tr><td class="text-muted">Puerto</td><td class="fw-semibold">587</td></tr>
+                    <tr><td class="text-muted">SSL/TLS</td><td class="fw-semibold">Activado ✅</td></tr>
+                </table>
+                <hr class="my-3">
+                <div class="alert alert-warning border-0 rounded-3 small p-3 mb-0">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                    <strong>Importante:</strong> No uses tu contraseña de Gmail directamente. Siempre usá una <em>contraseña de aplicación</em>.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePass() {
+            const input = document.getElementById('smtpPass');
+            const icon = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+    </script>
+}

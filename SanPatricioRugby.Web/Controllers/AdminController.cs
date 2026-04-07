@@ -11,10 +11,12 @@ namespace SanPatricioRugby.Web.Controllers
     public class AdminController : Controller
     {
         private readonly ImportService _importService;
+        private readonly ApplicationDbContext _context;
 
-        public AdminController(ImportService importService)
+        public AdminController(ImportService importService, ApplicationDbContext context)
         {
             _importService = importService;
+            _context = context;
         }
 
         public IActionResult Index()
@@ -57,6 +59,54 @@ namespace SanPatricioRugby.Web.Controllers
                 ModelState.AddModelError("", message);
                 return View();
             }
+        }
+
+        // GET: /Admin/ConfigEmail
+        public async Task<IActionResult> ConfigEmail()
+        {
+            var config = await _context.ConfiguracionesEmail.FirstOrDefaultAsync()
+                         ?? new ConfiguracionEmail();
+            return View(config);
+        }
+
+        // POST: /Admin/ConfigEmail
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfigEmail(ConfiguracionEmail model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var existing = await _context.ConfiguracionesEmail.FirstOrDefaultAsync();
+            if (existing == null)
+            {
+                _context.ConfiguracionesEmail.Add(model);
+            }
+            else
+            {
+                existing.EmailRemitente = model.EmailRemitente;
+                existing.NombreRemitente = model.NombreRemitente;
+                existing.SmtpHost = model.SmtpHost;
+                existing.SmtpPort = model.SmtpPort;
+                existing.SmtpUser = model.SmtpUser;
+                existing.SmtpPassword = model.SmtpPassword;
+                existing.UsarSsl = model.UsarSsl;
+                
+                // Nuevos campos del club
+                existing.NombreClub = model.NombreClub;
+                existing.RazonSocial = model.RazonSocial;
+                existing.Domicilio = model.Domicilio;
+                existing.Cuit = model.Cuit;
+                existing.IngresosBrutos = model.IngresosBrutos;
+                existing.InicioActividades = model.InicioActividades;
+                existing.CondicionIva = model.CondicionIva;
+
+                _context.ConfiguracionesEmail.Update(existing);
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Configuración de email guardada correctamente.";
+            return RedirectToAction(nameof(ConfigEmail));
         }
     }
 }

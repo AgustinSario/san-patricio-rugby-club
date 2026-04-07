@@ -31,6 +31,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => {
 builder.Services.AddScoped<ImportService>();
 builder.Services.AddScoped<IAccesoService, AccesoService>();
 builder.Services.AddScoped<ICarnetService, CarnetService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IReciboService, ReciboService>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {

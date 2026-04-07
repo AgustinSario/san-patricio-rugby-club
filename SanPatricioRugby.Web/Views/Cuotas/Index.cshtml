@@ -155,9 +155,10 @@
                 text: "¿Cómo abonó el socio esta cuota?",
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#cc0000',
+                confirmButtonColor: '#0d6efd',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Registrar Pago',
+                confirmButtonText: '<i class="fa-solid fa-cash-register me-1"></i> Registrar Pago',
+                cancelButtonText: 'Cancelar',
                 input: 'select',
                 inputOptions: {
                     '1': 'Efectivo',
@@ -174,10 +175,142 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $.post('/Cuotas/Pagar', { id: id, medio: result.value }, function() {
-                        Swal.fire('¡Cobrado!', 'El pago ha sido registrado con éxito.', 'success')
-                        .then(() => location.reload());
+                    registrarPago(id, result.value, null);
+                }
+            });
+        }
+
+        function registrarPago(id, medio, emailSocio) {
+            const data = new FormData();
+            data.append('id', id);
+            data.append('medio', medio);
+            if (emailSocio) data.append('emailSocio', emailSocio);
+
+            // Token antiforgery no requerido en este endpoint (es HttpPost sin [ValidateAntiForgeryToken])
+            fetch('/Cuotas/Pagar', {
+                method: 'POST',
+                body: data
+            })
+            .then(r => r.json())
+            .then(resp => {
+                if (!resp.ok) {
+                    Swal.fire('Error', 'No se pudo registrar el pago.', 'error');
+                    return;
+                }
+
+                if (resp.necesitaEmail) {
+                    // El socio no tiene email → pedirlo una única vez
+                    Swal.fire({
+                        title: '📧 Email del Socio',
+                        html: `<p style="font-size:14px;color:#555">El pago fue registrado exitosamente.<br><br>
+                                ¿Querés enviarle el recibo por email?<br>
+                                <small class="text-muted">El email quedará guardado para futuros cobros.</small></p>`,
+                        input: 'email',
+                        inputPlaceholder: 'correo@ejemplo.com',
+                        showCancelButton: true,
+                        denyButtonColor: '#0d6efd',
+                        confirmButtonText: '<i class="fa-solid fa-paper-plane me-1"></i> Enviar Recibo',
+                        cancelButtonText: 'Omitir',
+                        denyButtonText: '<i class="fa-solid fa-eye me-1"></i> Vista Previa',
+                        inputValidator: (value) => {
+                            var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                            if (value && !emailRegex.test(value)) {
+                                return 'Ingresá un email válido';
+                            }
+                        }
+                    }).then(emailResult => {
+                        if (emailResult.isConfirmed && emailResult.value) {
+                            // Re-enviar con el email capturado (pago ya registrado, solo envía email)
+                            enviarSoloEmail(id, emailResult.value);
+                        } else if (emailResult.isDenied) {
+                            // Vista previa y luego volver a preguntar? 
+                            // Mejor abrir en nueva pestaña y no cerrar el flujo
+                            window.open('/Cuotas/DescargarRecibo/' + id, '_blank');
+                            // Re-lanzar este mismo modal para que el usuario pueda seguir el flujo
+                            registrarPago(id, medio, emailSocio); 
+                        } else {
+                            mostrarExito('¡Pago registrado! No se envió el recibo.', false, id);
+                        }
                     });
+                } else if (resp.emailEnviado) {
+                    mostrarExito('¡Pago registrado y recibo enviado por email!', true, id);
+                } else if (resp.warning) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '¡Pago registrado!',
+                        text: resp.warning,
+                        confirmButtonColor: '#0d6efd',
+                        showDenyButton: true,
+                        denyButtonText: '<i class="fa-solid fa-eye me-1"></i> Ver Recibo',
+                        denyButtonColor: '#0d6efd'
+                    }).then((wResult) => {
+                        if (wResult.isDenied) {
+                            window.open('/Cuotas/DescargarRecibo/' + id, '_blank');
+                        }
+                        location.reload();
+                    });
+                } else {
+                    mostrarExito('¡Pago registrado!', false, id);
+                }
+            })
+            .catch(() => {
+                Swal.fire('Error', 'No se pudo conectar con el servidor.', 'error');
+            });
+        }
+
+        function enviarSoloEmail(cuotaId, email) {
+            const data = new FormData();
+            data.append('cuotaId', cuotaId);
+            data.append('email', email);
+
+            fetch('/Cuotas/EnviarReciboEmail', {
+                method: 'POST',
+                body: data
+            })
+            .then(r => r.json())
+            .then(resp => {
+                if (resp.enviado) {
+                    mostrarExito('¡Pago registrado y recibo enviado por email!', true, cuotaId);
+                } else {
+                    Swal.fire({ 
+                        icon: 'warning', 
+                        title: '¡Pago registrado!', 
+                        text: 'No se pudo enviar el recibo: ' + (resp.error || ''), 
+                        confirmButtonColor: '#0d6efd',
+                        showDenyButton: true,
+                        denyButtonText: '<i class="fa-solid fa-eye me-1"></i> Ver Recibo',
+                        denyButtonColor: '#0d6efd'
+                    }).then((res) => {
+                        if (res.isDenied) window.open('/Cuotas/DescargarRecibo/' + cuotaId, '_blank');
+                        location.reload();
+                    });
+                }
+            });
+        }
+
+        function mostrarExito(mensaje, conEmail, id) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Operación Exitosa!',
+                text: mensaje,
+                showDenyButton: true,
+                confirmButtonColor: '#198754',
+                denyButtonColor: '#0d6efd',
+                confirmButtonText: 'Aceptar',
+                denyButtonText: '<i class="fa-solid fa-eye me-1"></i> Ver Recibo',
+            }).then((result) => {
+                if (result.isDenied) {
+                    window.open('/Cuotas/DescargarRecibo/' + id, '_blank');
+                    // No recargamos aquí para que pueda volver y enviar email si así lo desea, 
+                    // o mostramos un botón para cerrar y recargar
+                    Swal.fire({
+                        title: 'Aviso',
+                        text: 'El recibo se abrió en una nueva pestaña.',
+                        icon: 'info',
+                        confirmButtonText: 'Cerrar y Actualizar'
+                    }).then(() => location.reload());
+                } else {
+                    location.reload();
                 }
             });
         }

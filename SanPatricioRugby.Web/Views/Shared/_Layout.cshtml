@@ -44,6 +44,11 @@
                                     <i class="fa-solid fa-file-invoice-dollar me-1"></i> Cuotas
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-medium text-dark hover-primary px-3" asp-area="" asp-controller="Admin" asp-action="Index">
+                                    <i class="fa-solid fa-gears me-1"></i> Admin
+                                </a>
+                            </li>
                         }
                         
                         <li class="nav-item">
@@ -60,6 +65,7 @@
                                 </a>
                                 <ul class="dropdown-menu shadow-sm border-0" aria-labelledby="securityDropdown">
                                     <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="Importar"><i class="fa-solid fa-file-import me-2 text-success"></i> Importar Mensual</a></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="ConfigEmail"><i class="fa-solid fa-envelope me-2 text-primary"></i> Configurar Email (SMTP)</a></li>
                                     <li><a class="dropdown-item py-2" asp-controller="Acceso" asp-action="Precios"><i class="fa-solid fa-coins me-2 text-warning"></i> Configurar Precios</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item py-2" asp-controller="Users" asp-action="Index"><i class="fa-solid fa-users me-2 text-primary"></i> Usuarios</a></li>
