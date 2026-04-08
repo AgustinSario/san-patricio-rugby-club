@@ -19,11 +19,48 @@
                 <h4 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-user-pen me-2 text-warning"></i> Editar Socio: @Model.ApellidoNombre</h4>
             </div>
             <div class="card-body p-5">
-                <form asp-action="Edit">
+                <form asp-action="Edit" enctype="multipart/form-data">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
                     <input type="hidden" asp-for="Id" />
 
                     <h5 class="fw-bold text-danger mb-4 border-start border-4 border-danger ps-3">Datos Personales</h5>
+                    
+                    <!-- Photo Upload Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="border rounded-3 p-4 bg-light text-center">
+                                <label class="form-label fw-semibold d-block mb-3">
+                                    <i class="fa-solid fa-camera me-2"></i> Foto 4x4 del Socio
+                                </label>
+                                <div class="mb-3">
+                                    <div id="photoPreview" class="mx-auto mb-3" style="width: 150px; height: 150px; @(string.IsNullOrEmpty(Model.FotoPath) ? "display: none;" : "")">
+                                        <img id="previewImage" src="@(string.IsNullOrEmpty(Model.FotoPath) ? "#" : "~/" + Model.FotoPath)" alt="Vista previa" class="img-fluid rounded-circle border border-3 border-primary" style="width: 100%; height: 100%; object-fit: cover;" />
+                                    </div>
+                                    <div id="noPhotoPlaceholder" class="mx-auto mb-3" style="width: 150px; height: 150px; @(string.IsNullOrEmpty(Model.FotoPath) ? "" : "display: none;")">
+                                        <div class="bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 100%; height: 100%;">
+                                            <i class="fa-solid fa-user text-secondary" style="font-size: 4rem;"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="file" id="FotoUpload" name="FotoUpload" accept="image/jpeg,image/png,image/jpg" class="form-control d-inline-block w-auto mx-auto" onchange="previewPhoto(this)" />
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fa-solid fa-info-circle me-1"></i> 
+                                    Formatos aceptados: JPG, PNG | Tamaño máximo: 2MB | Proporción: 4x4 (cuadrada)
+                                </small>
+                                <div id="photoError" class="text-danger small mt-2" style="display: none;"></div>
+                                @if (!string.IsNullOrEmpty(Model.FotoPath))
+                                {
+                                    <div class="form-check mt-3">
+                                        <input class="form-check-input" type="checkbox" id="removePhoto" name="RemovePhoto" />
+                                        <label class="form-check-label" for="removePhoto">
+                                            Eliminar foto actual
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row mb-4">
                         <div class="col-md-6 mb-3">
                             <label asp-for="ApellidoNombre" class="form-label fw-semibold">Apellido y Nombre <span class="text-danger">*</span></label>
@@ -117,4 +154,61 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        function previewPhoto(input) {
+            const errorDiv = document.getElementById('photoError');
+            const previewDiv = document.getElementById('photoPreview');
+            const noPhotoDiv = document.getElementById('noPhotoPlaceholder');
+            const previewImage = document.getElementById('previewImage');
+            
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                // Validate file size (max 2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    errorDiv.textContent = 'El archivo es demasiado grande. Máximo 2MB permitido.';
+                    errorDiv.style.display = 'block';
+                    input.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                if (!file.type.match('image/jpeg') && !file.type.match('image/png') && !file.type.match('image/jpg')) {
+                    errorDiv.textContent = 'Solo se permiten archivos JPG o PNG.';
+                    errorDiv.style.display = 'block';
+                    input.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewDiv.style.display = 'block';
+                    noPhotoDiv.style.display = 'none';
+                    
+                    // Check aspect ratio after image loads
+                    previewImage.onload = function() {
+                        const width = previewImage.naturalWidth;
+                        const height = previewImage.naturalHeight;
+                        const ratio = width / height;
+                        
+                        // Allow ratio between 0.8 and 1.2 (close to 4x4)
+                        if (ratio < 0.8 || ratio > 1.2) {
+                            errorDiv.textContent = 'La imagen no tiene proporción 4x4 (cuadrada). Por favor, use una foto cuadrada.';
+                            errorDiv.style.display = 'block';
+                        }
+                    };
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewDiv.style.display = 'none';
+                noPhotoDiv.style.display = 'block';
+                previewImage.src = '#';
+            }
+        }
+    </script>
 }

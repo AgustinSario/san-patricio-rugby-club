@@ -54,6 +54,9 @@ namespace SanPatricioRugby.DAL.Models
         [EmailAddress]
         public string? Email { get; set; }
 
+        [Display(Name = "Foto del Socio")]
+        public string? FotoPath { get; set; }
+
         [Display(Name = "Ruta del Carnet")]
         public string? CarnetPath { get; set; }
 

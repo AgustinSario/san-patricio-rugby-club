@@ -55,7 +55,7 @@ namespace SanPatricioRugby.Web.Services
                     {
                         canvas.DrawPath(path, paint);
                     }
-                    
+
                     // Sombra sutil del papel roto
                     using(var paintLine = new SKPaint { Color = SKColors.LightGray, Style = SKPaintStyle.Stroke, StrokeWidth = 2 })
                     {
@@ -63,11 +63,16 @@ namespace SanPatricioRugby.Web.Services
                     }
                 }
 
-                        // 3. Dibujar Escudo (Foto circular con fondo blanco)
-                        var escudoPath = Path.Combine(rootPath, "wwwroot", "images", "escudo_oficial.png");
-                        if (File.Exists(escudoPath))
+                // 3. Dibujar Foto del Socio o Escudo (Foto circular con fondo blanco)
+                bool photoDrawn = false;
+                if (!string.IsNullOrEmpty(socio.FotoPath))
+                {
+                    var fotoPath = Path.Combine(rootPath, "wwwroot", socio.FotoPath);
+                    if (File.Exists(fotoPath))
+                    {
+                        try
                         {
-                            using (var stream = File.OpenRead(escudoPath))
+                            using (var stream = File.OpenRead(fotoPath))
                             using (var bitmap = SKBitmap.Decode(stream))
                             {
                                 float circleSize = 240;
@@ -88,17 +93,17 @@ namespace SanPatricioRugby.Web.Services
                                     circlePath.AddCircle(circleX, circleY, circleSize / 2);
                                     canvas.ClipPath(circlePath, SKClipOperation.Intersect, true);
                                 }
-                                
-                                float scale = Math.Min(circleSize / bitmap.Width, circleSize / bitmap.Height) * 0.95f; 
+
+                                float scale = Math.Min(circleSize / bitmap.Width, circleSize / bitmap.Height) * 0.95f;
                                 float imgW = bitmap.Width * scale;
                                 float imgH = bitmap.Height * scale;
                                 var destRect = new SKRect(
-                                    circleX - imgW / 2, 
-                                    circleY - imgH / 2, 
-                                    circleX + imgW / 2, 
+                                    circleX - imgW / 2,
+                                    circleY - imgH / 2,
+                                    circleX + imgW / 2,
                                     circleY + imgH / 2
                                 );
-                                
+
                                 using (var paint = new SKPaint { IsAntialias = true, FilterQuality = SKFilterQuality.High })
                                 {
                                     canvas.DrawBitmap(bitmap, destRect, paint);
@@ -110,8 +115,69 @@ namespace SanPatricioRugby.Web.Services
                                 {
                                     canvas.DrawCircle(circleX, circleY, circleSize / 2, borderPaint);
                                 }
+                                
+                                photoDrawn = true;
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error al cargar foto del socio: {ex.Message}");
+                        }
+                    }
+                }
+
+                // Si no hay foto del socio, usar el escudo del club
+                if (!photoDrawn)
+                {
+                    var escudoPath = Path.Combine(rootPath, "wwwroot", "images", "escudo_oficial.png");
+                    if (File.Exists(escudoPath))
+                    {
+                        using (var stream = File.OpenRead(escudoPath))
+                        using (var bitmap = SKBitmap.Decode(stream))
+                        {
+                            float circleSize = 240;
+                            float circleX = 50 + circleSize / 2;
+                            float circleY = 45 + circleSize / 2;
+                            var brandRed = SKColor.Parse("#B71C1C");
+
+                            // Fondo del círculo en BLANCO
+                            using (var backgroundPaint = new SKPaint { Color = SKColors.White, Style = SKPaintStyle.Fill, IsAntialias = true })
+                            {
+                                canvas.DrawCircle(circleX, circleY, circleSize / 2, backgroundPaint);
+                            }
+
+                            // Centrear la imagen dentro del círculo
+                            canvas.Save();
+                            using (var circlePath = new SKPath())
+                            {
+                                circlePath.AddCircle(circleX, circleY, circleSize / 2);
+                                canvas.ClipPath(circlePath, SKClipOperation.Intersect, true);
+                            }
+
+                            float scale = Math.Min(circleSize / bitmap.Width, circleSize / bitmap.Height) * 0.95f;
+                            float imgW = bitmap.Width * scale;
+                            float imgH = bitmap.Height * scale;
+                            var destRect = new SKRect(
+                                circleX - imgW / 2,
+                                circleY - imgH / 2,
+                                circleX + imgW / 2,
+                                circleY + imgH / 2
+                            );
+
+                            using (var paint = new SKPaint { IsAntialias = true, FilterQuality = SKFilterQuality.High })
+                            {
+                                canvas.DrawBitmap(bitmap, destRect, paint);
+                            }
+                            canvas.Restore();
+
+                            // Borde del círculo con el mismo rojo externo para integración
+                            using (var borderPaint = new SKPaint { Color = brandRed, Style = SKPaintStyle.Stroke, StrokeWidth = 6, IsAntialias = true })
+                            {
+                                canvas.DrawCircle(circleX, circleY, circleSize / 2, borderPaint);
+                            }
+                        }
+                    }
+                }
 
                 // 4. Dibujar Textos del Club
                 using (var paint = new SKPaint { Color = SKColors.White, Typeface = SKTypeface.FromFamilyName(FontName, SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright), TextSize = 45, IsAntialias = true })

@@ -9,6 +9,9 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using QuestPDF.Previewer;
 using SanPatricioRugby.Web.Services;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace SanPatricioRugby.Web.Controllers
 {
@@ -144,10 +147,17 @@ namespace SanPatricioRugby.Web.Controllers
         // POST: Socios/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Socio socio)
+        public async Task<IActionResult> Create([Bind("NumeroIdentificador,ApellidoNombre,Dni,FechaNacimiento,Sexo,Celular,TipoSocio,Deporte,Division,Camada,MedioPagoPredeterminado,NumeroTarjeta,NombreTitularTarjeta,Acuerdos,FechaNacimiento2,EsActivo,Email")] Socio socio, IFormFile? FotoUpload)
         {
             if (ModelState.IsValid)
             {
+                // Handle photo upload
+                if (FotoUpload != null && FotoUpload.Length > 0)
+                {
+                    var photoPath = await SavePhotoAsync(FotoUpload, socio.Id);
+                    socio.FotoPath = photoPath;
+                }
+
                 _context.Add(socio);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -169,7 +179,7 @@ namespace SanPatricioRugby.Web.Controllers
         // POST: Socios/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Socio socio)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,NumeroIdentificador,ApellidoNombre,Dni,FechaNacimiento,Sexo,Celular,TipoSocio,Deporte,Division,Camada,MedioPagoPredeterminado,NumeroTarjeta,NombreTitularTarjeta,Acuerdos,FechaNacimiento2,EsActivo,Email")] Socio socio, IFormFile? FotoUpload, bool RemovePhoto = false)
         {
             if (id != socio.Id) return NotFound();
 
@@ -177,7 +187,57 @@ namespace SanPatricioRugby.Web.Controllers
             {
                 try
                 {
-                    _context.Update(socio);
+                    var existingSocio = await _context.Socios.FindAsync(id);
+                    if (existingSocio == null) return NotFound();
+
+                    // Handle photo removal
+                    if (RemovePhoto && !string.IsNullOrEmpty(existingSocio.FotoPath))
+                    {
+                        var oldPhotoPath = Path.Combine(_env.ContentRootPath, "wwwroot", existingSocio.FotoPath);
+                        if (System.IO.File.Exists(oldPhotoPath))
+                        {
+                            System.IO.File.Delete(oldPhotoPath);
+                        }
+                        existingSocio.FotoPath = null;
+                    }
+
+                    // Handle new photo upload
+                    if (FotoUpload != null && FotoUpload.Length > 0)
+                    {
+                        // Delete old photo if exists
+                        if (!string.IsNullOrEmpty(existingSocio.FotoPath))
+                        {
+                            var oldPhotoPath = Path.Combine(_env.ContentRootPath, "wwwroot", existingSocio.FotoPath);
+                            if (System.IO.File.Exists(oldPhotoPath))
+                            {
+                                System.IO.File.Delete(oldPhotoPath);
+                            }
+                        }
+
+                        var photoPath = await SavePhotoAsync(FotoUpload, socio.Id);
+                        existingSocio.FotoPath = photoPath;
+                    }
+
+                    // Update other fields
+                    existingSocio.NumeroIdentificador = socio.NumeroIdentificador;
+                    existingSocio.ApellidoNombre = socio.ApellidoNombre;
+                    existingSocio.Dni = socio.Dni;
+                    existingSocio.FechaNacimiento = socio.FechaNacimiento;
+                    existingSocio.Sexo = socio.Sexo;
+                    existingSocio.Celular = socio.Celular;
+                    existingSocio.TipoSocio = socio.TipoSocio;
+                    existingSocio.Deporte = socio.Deporte;
+                    existingSocio.Division = socio.Division;
+                    existingSocio.Camada = socio.Camada;
+                    existingSocio.MedioPagoPredeterminado = socio.MedioPagoPredeterminado;
+                    existingSocio.NumeroTarjeta = socio.NumeroTarjeta;
+                    existingSocio.NombreTitularTarjeta = socio.NombreTitularTarjeta;
+                    existingSocio.Acuerdos = socio.Acuerdos;
+                    existingSocio.FechaNacimiento2 = socio.FechaNacimiento2;
+                    existingSocio.EsActivo = socio.EsActivo;
+                    existingSocio.Email = socio.Email;
+
+                    _context.Update(existingSocio);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -513,8 +573,33 @@ namespace SanPatricioRugby.Web.Controllers
 
             await _context.SaveChangesAsync();
             TempData["Success"] = $"Proceso finalizado. Carnets generados: {generados}. Errores: {errores}.";
-            
+
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<string> SavePhotoAsync(IFormFile foto, int socioId)
+        {
+            var fileName = $"foto_{socioId}.jpg";
+            var relativePath = Path.Combine("images", "fotos", fileName);
+            var fullPath = Path.Combine(_env.ContentRootPath, "wwwroot", relativePath);
+
+            var dir = Path.GetDirectoryName(fullPath);
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir!);
+
+            using (var image = SixLabors.ImageSharp.Image.Load(foto.OpenReadStream()))
+            {
+                // Resize to max 800x800 to save space (medium quality)
+                image.Mutate(x => x.Resize(new SixLabors.ImageSharp.Processing.ResizeOptions
+                {
+                    Size = new SixLabors.ImageSharp.Size(800, 800),
+                    Mode = SixLabors.ImageSharp.Processing.ResizeMode.Max
+                }));
+
+                // Compress with quality 75 to save space
+                image.Save(fullPath, new SixLabors.ImageSharp.Formats.Jpeg.JpegEncoder { Quality = 75 });
+            }
+
+            return relativePath;
         }
     }
 }
