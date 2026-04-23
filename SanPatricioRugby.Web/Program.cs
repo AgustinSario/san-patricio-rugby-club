@@ -114,18 +114,25 @@ using (var scope = app.Services.CreateScope())
     await userManager.ResetPasswordAsync(userAcceso, token, "acceso123!");
 
     // Seed Precios
-    if (!context.Precios.Any())
+    var conceptosRequeridos = new List<ConfiguracionPrecio>
     {
-        context.Precios.AddRange(new List<ConfiguracionPrecio>
+        new ConfiguracionPrecio { Concepto = "Entrada No Socio", Valor = 2000, Descripcion = "Cobro para quienes no son socios del club" },
+        new ConfiguracionPrecio { Concepto = "Entrada Socio Moroso", Valor = 1000, Descripcion = "Cobro reducido para socios que deben cuotas" },
+        new ConfiguracionPrecio { Concepto = "Estacionamiento Auto", Valor = 1500 },
+        new ConfiguracionPrecio { Concepto = "Estacionamiento Moto", Valor = 500 },
+        new ConfiguracionPrecio { Concepto = "Estacionamiento Camioneta", Valor = 2000 },
+        new ConfiguracionPrecio { Concepto = "Cuota Mensual General", Valor = 50500, Descripcion = "Monto estándar de la cuota mensual" },
+        new ConfiguracionPrecio { Concepto = "Cuota Grupo Familiar", Valor = 85000, Descripcion = "Monto total para el grupo familiar (paga el titular)" }
+    };
+
+    foreach (var c in conceptosRequeridos)
+    {
+        if (!context.Precios.Any(p => p.Concepto == c.Concepto))
         {
-            new ConfiguracionPrecio { Concepto = "Entrada No Socio", Valor = 2000, Descripcion = "Cobro para quienes no son socios del club" },
-            new ConfiguracionPrecio { Concepto = "Entrada Socio Moroso", Valor = 1000, Descripcion = "Cobro reducido para socios que deben cuotas" },
-            new ConfiguracionPrecio { Concepto = "Estacionamiento Auto", Valor = 1500 },
-            new ConfiguracionPrecio { Concepto = "Estacionamiento Moto", Valor = 500 },
-            new ConfiguracionPrecio { Concepto = "Estacionamiento Camioneta", Valor = 2000 }
-        });
-        await context.SaveChangesAsync();
+            context.Precios.Add(c);
+        }
     }
+    await context.SaveChangesAsync();
 }
 
 app.Run();

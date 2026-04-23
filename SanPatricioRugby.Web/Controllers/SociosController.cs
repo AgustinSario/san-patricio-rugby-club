@@ -131,9 +131,13 @@ namespace SanPatricioRugby.Web.Controllers
 
             var socio = await _context.Socios
                 .Include(s => s.Cuotas)
+                .Include(s => s.GrupoFamiliar)
+                    .ThenInclude(g => g!.Miembros)
                 .FirstOrDefaultAsync(m => m.Id == id);
                 
             if (socio == null) return NotFound();
+
+            ViewBag.GruposFamiliares = await _context.GruposFamiliares.OrderBy(g => g.Nombre).ToListAsync();
 
             return View(socio);
         }
@@ -173,6 +177,8 @@ namespace SanPatricioRugby.Web.Controllers
             var socio = await _context.Socios.FindAsync(id);
             if (socio == null) return NotFound();
             
+            ViewBag.GruposFamiliares = await _context.GruposFamiliares.OrderBy(g => g.Nombre).ToListAsync();
+
             return View(socio);
         }
 
@@ -575,6 +581,86 @@ namespace SanPatricioRugby.Web.Controllers
             TempData["Success"] = $"Proceso finalizado. Carnets generados: {generados}. Errores: {errores}.";
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CrearGrupoFamiliar(string nombre, int socioId)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+            {
+                TempData["Warning"] = "El nombre del grupo no puede estar vacío.";
+                return RedirectToAction(nameof(Details), new { id = socioId });
+            }
+
+            var grupo = new GrupoFamiliar { Nombre = nombre };
+            _context.GruposFamiliares.Add(grupo);
+            await _context.SaveChangesAsync();
+
+            var socio = await _context.Socios.FindAsync(socioId);
+            if (socio != null)
+            {
+                socio.GrupoFamiliarId = grupo.Id;
+                socio.EsTitularGrupoFamiliar = true; // Por defecto el que lo crea es el titular
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["Success"] = $"Grupo '{nombre}' creado y socio asignado como titular.";
+            return RedirectToAction(nameof(Details), new { id = socioId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AsignarGrupoFamiliar(int socioId, int grupoId)
+        {
+            var socio = await _context.Socios.FindAsync(socioId);
+            if (socio == null) return NotFound();
+
+            socio.GrupoFamiliarId = grupoId;
+            socio.EsTitularGrupoFamiliar = false; // Al unirse a uno existente, entra como miembro
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Socio asignado al grupo familiar correctamente.";
+            return RedirectToAction(nameof(Details), new { id = socioId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> QuitarDeGrupoFamiliar(int socioId)
+        {
+            var socio = await _context.Socios.FindAsync(socioId);
+            if (socio == null) return NotFound();
+
+            socio.GrupoFamiliarId = null;
+            socio.EsTitularGrupoFamiliar = false;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Socio quitado del grupo familiar.";
+            return RedirectToAction(nameof(Details), new { id = socioId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetTitularGrupoFamiliar(int socioId)
+        {
+            var socio = await _context.Socios.FindAsync(socioId);
+            if (socio == null || !socio.GrupoFamiliarId.HasValue) return NotFound();
+
+            // Quitar titularidad a otros del mismo grupo
+            var otrosMiembros = await _context.Socios
+                .Where(s => s.GrupoFamiliarId == socio.GrupoFamiliarId && s.Id != socio.Id)
+                .ToListAsync();
+            
+            foreach (var s in otrosMiembros)
+            {
+                s.EsTitularGrupoFamiliar = false;
+            }
+
+            socio.EsTitularGrupoFamiliar = true;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "El socio ahora es el titular del grupo familiar.";
+            return RedirectToAction(nameof(Details), new { id = socioId });
         }
 
         private async Task<string> SavePhotoAsync(IFormFile foto, int socioId)

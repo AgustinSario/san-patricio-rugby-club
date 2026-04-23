@@ -17,6 +17,7 @@ namespace SanPatricioRugby.DAL
         public DbSet<RegistroEstacionamiento> Estacionamientos { get; set; }
         public DbSet<ConfiguracionPrecio> Precios { get; set; }
         public DbSet<ConfiguracionEmail> ConfiguracionesEmail { get; set; }
+        public DbSet<GrupoFamiliar> GruposFamiliares { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

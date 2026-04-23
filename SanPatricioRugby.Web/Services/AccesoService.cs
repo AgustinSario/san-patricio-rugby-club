@@ -42,7 +42,22 @@ namespace SanPatricioRugby.Web.Services
         private SocioStatusViewModel BuildStatus(Socio socio)
         {
             var hoy = DateTime.Today;
-            var pendientes = socio.Cuotas
+            var socioParaCuotas = socio;
+
+            // Si es parte de un grupo familiar y NO es el titular, el estado depende del titular
+            if (socio.GrupoFamiliarId.HasValue && !socio.EsTitularGrupoFamiliar)
+            {
+                var titular = _context.Socios
+                    .Include(s => s.Cuotas)
+                    .FirstOrDefault(s => s.GrupoFamiliarId == socio.GrupoFamiliarId && s.EsTitularGrupoFamiliar);
+                
+                if (titular != null)
+                {
+                    socioParaCuotas = titular;
+                }
+            }
+
+            var pendientes = socioParaCuotas.Cuotas
                 .Where(c => (c.Estado == EstadoPago.Pendiente || c.Estado == EstadoPago.Vencido) 
                             && c.FechaVencimiento <= hoy)
                 .OrderBy(c => c.Anio).ThenBy(c => c.Mes)

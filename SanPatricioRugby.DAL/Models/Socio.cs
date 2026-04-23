@@ -60,6 +60,14 @@ namespace SanPatricioRugby.DAL.Models
         [Display(Name = "Ruta del Carnet")]
         public string? CarnetPath { get; set; }
 
+        // Grupo Familiar
+        [Display(Name = "Grupo Familiar")]
+        public int? GrupoFamiliarId { get; set; }
+        public virtual GrupoFamiliar? GrupoFamiliar { get; set; }
+
+        [Display(Name = "Es Titular del Grupo")]
+        public bool EsTitularGrupoFamiliar { get; set; }
+
         public virtual ICollection<Cuota> Cuotas { get; set; } = new List<Cuota>();
     }
 }
